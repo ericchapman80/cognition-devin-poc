@@ -66,6 +66,78 @@ class TestLLMProvider:
         result = provider.generate("test", "system")
         assert result == "OpenAI response"
 
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_lmstudio_success(self, mock_post):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {
+            "choices": [{"message": {"content": "LM Studio response"}}]
+        }
+        mock_post.return_value = mock_resp
+
+        config = LLMConfig(provider="lmstudio", model="local-model")
+        provider = LLMProvider(config)
+        result = provider.generate("test", "system")
+        assert result == "LM Studio response"
+        call_url = mock_post.call_args[0][0]
+        assert call_url == "http://localhost:1234/v1/chat/completions"
+
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_lmstudio_connection_error(self, mock_post):
+        mock_post.side_effect = requests.ConnectionError()
+        config = LLMConfig(provider="lmstudio")
+        provider = LLMProvider(config)
+        with pytest.raises(ConnectionError, match="Cannot connect to LM Studio"):
+            provider.generate("test")
+
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_lmstudio_timeout(self, mock_post):
+        mock_post.side_effect = requests.Timeout()
+        config = LLMConfig(provider="lmstudio")
+        provider = LLMProvider(config)
+        with pytest.raises(TimeoutError, match="LM Studio request timed out"):
+            provider.generate("test")
+
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_lmstudio_http_error(self, mock_post):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 400
+        mock_resp.raise_for_status.side_effect = requests.HTTPError(
+            response=mock_resp
+        )
+        mock_resp.text = '{"error": "model not found"}'
+        mock_post.return_value = mock_resp
+        config = LLMConfig(provider="lmstudio", model="bad-model")
+        provider = LLMProvider(config)
+        with pytest.raises(RuntimeError, match="LM Studio returned HTTP error"):
+            provider.generate("test")
+
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_lmstudio_invalid_json(self, mock_post):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {"unexpected": "format"}
+        mock_post.return_value = mock_resp
+        config = LLMConfig(provider="lmstudio")
+        provider = LLMProvider(config)
+        with pytest.raises(RuntimeError, match="Unexpected LM Studio response"):
+            provider.generate("test")
+
+    @patch("trading_agents.llm.provider.requests.post")
+    def test_call_ollama_http_error(self, mock_post):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+        mock_resp.raise_for_status.side_effect = requests.HTTPError(
+            response=mock_resp
+        )
+        mock_resp.text = "model not found"
+        mock_post.return_value = mock_resp
+        config = LLMConfig(provider="ollama", model="bad-model")
+        provider = LLMProvider(config)
+        with pytest.raises(RuntimeError, match="Ollama returned HTTP error"):
+            provider.generate("test")
+
 
 class TestLLMAvailability:
     @patch("trading_agents.llm.provider.requests.get")
@@ -92,6 +164,23 @@ class TestLLMAvailability:
 
     def test_openai_unavailable_without_key(self):
         config = LLMConfig(provider="openai", openai_api_key="")
+        provider = LLMProvider(config)
+        assert provider.is_available() is False
+
+    @patch("trading_agents.llm.provider.requests.get")
+    def test_lmstudio_available(self, mock_get):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_get.return_value = mock_resp
+
+        config = LLMConfig(provider="lmstudio")
+        provider = LLMProvider(config)
+        assert provider.is_available() is True
+
+    @patch("trading_agents.llm.provider.requests.get")
+    def test_lmstudio_unavailable(self, mock_get):
+        mock_get.side_effect = requests.ConnectionError()
+        config = LLMConfig(provider="lmstudio")
         provider = LLMProvider(config)
         assert provider.is_available() is False
 

@@ -8,7 +8,10 @@ class FundamentalAnalyst(BaseAgent):
         "You are an expert fundamental analyst at a top trading firm. "
         "Evaluate company financials, valuation metrics, growth prospects, "
         "and competitive position. "
-        "Provide a clear signal: STRONG BUY, BUY, HOLD, SELL, or STRONG SELL with reasoning. "
+        "You MUST respond with a JSON object in this exact format:\n"
+        '{"signal": "BUY|SELL|HOLD|STRONG BUY|STRONG SELL", '
+        '"confidence": 75, '
+        '"summary": "Your concise analysis with key drivers."}\n'
         "Be concise but thorough. Focus on key financial metrics."
     )
 
@@ -51,7 +54,8 @@ class FundamentalAnalyst(BaseAgent):
             parts.append(f"Dividend Yield: {info['dividend_yield']:.2%}")
 
         parts.append(
-            "\nBased on these fundamentals, provide your assessment with a signal "
-            "(STRONG BUY / BUY / HOLD / SELL / STRONG SELL) and confidence level."
+            "\nBased on these fundamentals, respond with JSON: "
+            '{"signal": "STRONG BUY|BUY|HOLD|SELL|STRONG SELL", '
+            '"confidence": <0-100>, "summary": "<your analysis>"}'
         )
         return "\n".join(parts)

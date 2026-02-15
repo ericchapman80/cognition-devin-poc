@@ -54,6 +54,16 @@ class TestFundamentalAnalyst:
         result = agent.analyze("AAPL", {"stock_info": sample_stock_info})
         assert result.signal == "buy"
 
+    def test_analyze_parses_json_output(self, mock_llm, sample_stock_info):
+        mock_llm.generate.return_value = (
+            '{"signal": "BUY", "confidence": 77, "summary": "Bullish on valuation."}'
+        )
+        agent = FundamentalAnalyst(mock_llm)
+        result = agent.analyze("AAPL", {"stock_info": sample_stock_info})
+        assert result.signal == "buy"
+        assert result.confidence == 77
+        assert "Bullish" in result.summary
+
     def test_analyze_with_empty_context(self, mock_llm):
         agent = FundamentalAnalyst(mock_llm)
         result = agent.analyze("AAPL", {})

@@ -8,7 +8,10 @@ class SentimentAnalyst(BaseAgent):
         "You are an expert sentiment analyst at a top trading firm. "
         "Analyze market sentiment from news headlines, social media trends, and analyst opinions. "
         "Gauge the overall mood: bullish, bearish, or neutral. "
-        "Provide a clear signal: STRONG BUY, BUY, HOLD, SELL, or STRONG SELL with reasoning."
+        "You MUST respond with a JSON object in this exact format:\n"
+        '{"signal": "BUY|SELL|HOLD|STRONG BUY|STRONG SELL", '
+        '"confidence": 75, '
+        '"summary": "Your concise sentiment analysis."}'
     )
 
     def __init__(self, llm: LLMProvider):
@@ -40,7 +43,8 @@ class SentimentAnalyst(BaseAgent):
             parts.append("- No recent news available")
 
         parts.append(
-            "\nBased on this sentiment analysis, provide your assessment with a signal "
-            "(STRONG BUY / BUY / HOLD / SELL / STRONG SELL) and confidence level."
+            "\nBased on this sentiment analysis, respond with JSON: "
+            '{"signal": "STRONG BUY|BUY|HOLD|SELL|STRONG SELL", '
+            '"confidence": <0-100>, "summary": "<your analysis>"}'
         )
         return "\n".join(parts)

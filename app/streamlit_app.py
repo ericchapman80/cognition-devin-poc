@@ -1,4 +1,6 @@
+import json
 import sys
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -10,6 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from trading_agents.config import AppConfig  # noqa: E402
 from trading_agents.graph.trading_graph import TradingAgentsGraph  # noqa: E402
+from trading_agents.report import ReportExporter  # noqa: E402
+from trading_agents.screener import TradingScreener, parse_watchlist_input  # noqa: E402
 
 st.set_page_config(page_title="AI Trading Agents", page_icon="📈", layout="wide")
 
@@ -35,7 +39,7 @@ def init_session_state():
             st.session_state[key] = val
 
 
-def render_sidebar():
+def render_sidebar(defaults: AppConfig):
     st.sidebar.title("Configuration")
 
     ticker = st.sidebar.text_input("Stock Ticker", value="AAPL").strip().upper()
@@ -43,19 +47,56 @@ def render_sidebar():
 
     st.sidebar.markdown("---")
     st.sidebar.subheader("LLM Settings")
-    provider = st.sidebar.selectbox("LLM Provider", ["ollama", "openai"], index=0)
-    model = st.sidebar.text_input(
-        "Model Name", value="llama3" if provider == "ollama" else "gpt-4o-mini"
+
+    provider_options = ["ollama", "lmstudio", "openai"]
+    default_provider = (
+        defaults.llm.provider if defaults.llm.provider in provider_options else "ollama"
     )
-    temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.3, 0.1)
+    provider = st.sidebar.selectbox(
+        "LLM Provider",
+        provider_options,
+        index=provider_options.index(default_provider),
+    )
+
+    fallback_model = {
+        "ollama": "llama3",
+        "lmstudio": "local-model",
+        "openai": "gpt-4o-mini",
+    }.get(provider, "llama3")
+    env_model = defaults.llm.model if provider == default_provider else ""
+    model = st.sidebar.text_input("Model Name", value=env_model or fallback_model)
+
+    temperature = st.sidebar.slider(
+        "Temperature", 0.0, 1.0, float(defaults.llm.temperature), 0.1
+    )
 
     st.sidebar.markdown("---")
     st.sidebar.subheader("Trading Settings")
-    risk = st.sidebar.selectbox(
-        "Risk Tolerance", ["conservative", "moderate", "aggressive"], index=1
+
+    risk_options = ["conservative", "moderate", "aggressive"]
+    default_risk = (
+        defaults.trading.risk_tolerance
+        if defaults.trading.risk_tolerance in risk_options
+        else "moderate"
     )
-    debate_rounds = st.sidebar.slider("Debate Rounds", 1, 5, 2)
-    period_days = st.sidebar.slider("Analysis Period (days)", 30, 365, 90)
+    risk = st.sidebar.selectbox(
+        "Risk Tolerance",
+        risk_options,
+        index=risk_options.index(default_risk),
+    )
+
+    debate_rounds = st.sidebar.slider(
+        "Debate Rounds",
+        1,
+        5,
+        int(defaults.trading.max_debate_rounds),
+    )
+    period_days = st.sidebar.slider(
+        "Analysis Period (days)",
+        30,
+        365,
+        int(defaults.trading.analysis_period_days),
+    )
 
     return {
         "ticker": ticker,
@@ -289,29 +330,86 @@ def render_decision_badge(decision):
     )
 
 
+def render_screener_results(result):
+    if result.errors:
+        for err in result.errors:
+            st.warning(err)
+
+    if not result.picks:
+        st.error("No picks available.")
+        return
+
+    for pick in result.picks:
+        color = SIGNAL_COLORS.get(pick.signal, "#9E9E9E")
+        signal_label = pick.signal.replace("_", " ").upper()
+        risks = ", ".join(pick.key_risks[:3]) if pick.key_risks else "N/A"
+
+        st.markdown(
+            f"""<div style="background:#16213e; padding:16px; border-radius:8px;
+                    margin:8px 0; border-left:4px solid {color};">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="margin:0; color:white;">#{pick.rank} {pick.ticker}</h3>
+                        <span style="background:{color}; color:white; padding:2px 10px;
+                               border-radius:4px; font-weight:bold; font-size:0.85em;">
+                            {signal_label}
+                        </span>
+                        <span style="color:#aaa; margin-left:12px;">
+                            Confidence: {pick.confidence:.0f}%
+                        </span>
+                    </div>
+                    <div style="text-align:right; color:#aaa; font-size:0.9em;">
+                        Position: {pick.position_size_pct:.1f}% |
+                        Horizon: {pick.time_horizon or 'N/A'}
+                    </div>
+                </div>
+                <p style="color:#ccc; margin:8px 0 4px;">{pick.rationale[:300]}</p>
+                <p style="color:#888; font-size:0.85em; margin:0;">
+                    Risks: {risks}
+                </p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+
 def main():
     init_session_state()
 
     st.title("📈 AI Trading Agents")
     st.caption("Multi-Agent LLM Stock Trading Advisor")
 
-    params = render_sidebar()
+    config_defaults = AppConfig.from_env()
+    params = render_sidebar(config_defaults)
 
+    mode = st.sidebar.radio("Mode", ["Single Stock", "Screener"], horizontal=True)
+
+    if mode == "Screener":
+        _run_screener_mode(config_defaults, params)
+    else:
+        _run_single_stock_mode(config_defaults, params)
+
+
+def _build_config(params):
+    config = AppConfig.from_env()
+    config.llm.provider = params["provider"]
+    config.llm.model = params["model"]
+    config.llm.temperature = params["temperature"]
+    config.trading.risk_tolerance = params["risk"]
+    config.trading.max_debate_rounds = params["debate_rounds"]
+    config.trading.analysis_period_days = params["period_days"]
+    return config
+
+
+def _run_single_stock_mode(config_defaults, params):
     run_analysis = st.sidebar.button(
-        "🚀 Run Analysis", type="primary", use_container_width=True
+        "Run Analysis", type="primary", use_container_width=True
     )
 
     if run_analysis:
         st.session_state.step_log = []
         st.session_state.analysis_running = True
 
-        config = AppConfig.from_env()
-        config.llm.provider = params["provider"]
-        config.llm.model = params["model"]
-        config.llm.temperature = params["temperature"]
-        config.trading.risk_tolerance = params["risk"]
-        config.trading.max_debate_rounds = params["debate_rounds"]
-        config.trading.analysis_period_days = params["period_days"]
+        config = _build_config(params)
 
         errors = config.validate()
         if errors:
@@ -325,25 +423,28 @@ def main():
             progress_bar = st.progress(0)
             status_text = st.empty()
             step_count = [0]
-            total_steps = 7
+            total_steps = 8
 
             def on_step(step):
-                if step.status == "completed":
-                    step_count[0] += 1
-                    progress_bar.progress(min(step_count[0] / total_steps, 1.0))
-                    status_text.info(f"✅ {step.step_name} completed")
-                    st.session_state.step_log.append(
-                        {"name": step.step_name, "status": "completed"}
-                    )
-                elif step.status == "error":
-                    step_count[0] += 1
-                    progress_bar.progress(min(step_count[0] / total_steps, 1.0))
-                    status_text.error(f"❌ {step.step_name}: {step.error}")
-                    st.session_state.step_log.append(
-                        {"name": step.step_name, "status": "error", "error": step.error}
-                    )
-                else:
-                    status_text.info(f"⏳ {step.step_name}...")
+                try:
+                    if step.status == "completed":
+                        step_count[0] += 1
+                        progress_bar.progress(min(step_count[0] / total_steps, 1.0))
+                        status_text.info(f"{step.step_name} completed")
+                        st.session_state.step_log.append(
+                            {"name": step.step_name, "status": "completed"}
+                        )
+                    elif step.status == "error":
+                        step_count[0] += 1
+                        progress_bar.progress(min(step_count[0] / total_steps, 1.0))
+                        status_text.error(f"{step.step_name}: {step.error}")
+                        st.session_state.step_log.append(
+                            {"name": step.step_name, "status": "error", "error": step.error}
+                        )
+                    else:
+                        status_text.info(f"{step.step_name}...")
+                except Exception:
+                    pass
 
             graph = TradingAgentsGraph(config, on_step=on_step)
 
@@ -354,7 +455,11 @@ def main():
                 progress_bar.progress(1.0)
                 status_text.success("Analysis complete!")
             except Exception as e:
-                st.error(f"Analysis failed: {e}")
+                err_type = type(e).__name__
+                err_msg = str(e) or repr(e)
+                st.error(f"Analysis failed ({err_type}): {err_msg}")
+                with st.expander("Full error traceback"):
+                    st.code(traceback.format_exc())
                 st.session_state.analysis_running = False
                 return
 
@@ -376,6 +481,7 @@ def main():
 
             **Prerequisites:**
             - Install [Ollama](https://ollama.com) and run `ollama pull llama3`
+            - Or use [LM Studio](https://lmstudio.ai) with any local model
             - Or set your OpenAI API key in `.env`
             """
         )
@@ -384,17 +490,36 @@ def main():
     st.markdown("---")
     render_decision_badge(decision)
 
+    col_dl1, col_dl2 = st.columns(2)
+    with col_dl1:
+        exporter = ReportExporter()
+        report_data = exporter.decision_to_dict(decision)
+        st.download_button(
+            "Download JSON Report",
+            data=json.dumps(report_data, indent=2, default=str),
+            file_name=f"{decision.ticker}_report.json",
+            mime="application/json",
+        )
+    with col_dl2:
+        html_content = exporter._render_decision_html(report_data)
+        st.download_button(
+            "Download HTML Report",
+            data=html_content,
+            file_name=f"{decision.ticker}_report.html",
+            mime="text/html",
+        )
+
     st.markdown("---")
     if decision.stock_info:
         st.subheader(
-            f"📊 {decision.stock_info.get('name', decision.ticker)} "
+            f"{decision.stock_info.get('name', decision.ticker)} "
             f"({decision.stock_info.get('sector', '')})"
         )
         render_stock_info(decision.stock_info)
 
     st.markdown("---")
-    tab_chart, tab_agents, tab_debate, tab_risk, tab_log = st.tabs(
-        ["📈 Chart", "🤖 Agents", "⚔️ Debate", "🛡️ Risk", "📋 Log"]
+    tab_chart, tab_agents, tab_debate, tab_risk, tab_verify, tab_log = st.tabs(
+        ["Chart", "Agents", "Debate", "Risk", "Verification", "Log"]
     )
 
     with tab_chart:
@@ -457,7 +582,7 @@ def main():
                 role_val = report.agent_role
                 role = role_val.value if hasattr(role_val, "value") else str(role_val)
                 with st.expander(
-                    f"🤖 {role.replace('_', ' ').title()} — "
+                    f"{role.replace('_', ' ').title()} - "
                     f"{report.signal.replace('_', ' ').upper()} ({report.confidence:.0f}%)"
                 ):
                     st.markdown(report.summary)
@@ -474,14 +599,14 @@ def main():
                 with col1:
                     st.markdown(
                         f"<div style='border-left:4px solid #4CAF50; padding-left:12px;'>"
-                        f"<h4 style='color:#4CAF50;'>🐂 Bull Case</h4>"
+                        f"<h4 style='color:#4CAF50;'>Bull Case</h4>"
                         f"{entry.get('bull', 'N/A')}</div>",
                         unsafe_allow_html=True,
                     )
                 with col2:
                     st.markdown(
                         f"<div style='border-left:4px solid #EF5350; padding-left:12px;'>"
-                        f"<h4 style='color:#EF5350;'>🐻 Bear Case</h4>"
+                        f"<h4 style='color:#EF5350;'>Bear Case</h4>"
                         f"{entry.get('bear', 'N/A')}</div>",
                         unsafe_allow_html=True,
                     )
@@ -496,13 +621,109 @@ def main():
         else:
             st.info("No risk assessment available.")
 
+    with tab_verify:
+        if decision.verification_summary:
+            st.subheader("Verification Summary")
+            st.markdown(decision.verification_summary)
+            if decision.verification_issues:
+                st.subheader("Issues Found")
+                for issue in decision.verification_issues:
+                    st.warning(issue)
+        else:
+            st.info("No verification data available.")
+
     with tab_log:
         st.subheader("Analysis Pipeline Log")
         for entry in st.session_state.step_log:
             if entry["status"] == "completed":
-                st.success(f"✅ {entry['name']}")
+                st.success(entry["name"])
             else:
-                st.error(f"❌ {entry['name']}: {entry.get('error', 'Unknown error')}")
+                st.error(f"{entry['name']}: {entry.get('error', 'Unknown error')}")
+
+
+def _run_screener_mode(config_defaults, params):
+    st.subheader("Stock Screener")
+    watchlist_input = st.text_area(
+        "Enter tickers (comma or newline separated)",
+        value="AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA",
+        height=100,
+    )
+    top_n = st.slider("Top N picks", 1, 20, 5)
+
+    run_screener = st.sidebar.button(
+        "Run Screener", type="primary", use_container_width=True
+    )
+
+    if run_screener:
+        tickers = parse_watchlist_input(watchlist_input)
+        if not tickers:
+            st.error("No valid tickers provided.")
+            return
+
+        config = _build_config(params)
+        errors = config.validate()
+        if errors:
+            for err in errors:
+                st.error(f"Config error: {err}")
+            return
+
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        count = [0]
+
+        def on_progress(msg):
+            try:
+                count[0] += 1
+                progress_bar.progress(min(count[0] / len(tickers), 1.0))
+                status_text.info(msg)
+            except Exception:
+                pass
+
+        screener = TradingScreener(config, on_progress=on_progress)
+
+        try:
+            result = screener.screen(tickers, params["date"], top_n)
+            st.session_state["screener_result"] = result
+            progress_bar.progress(1.0)
+            status_text.success(f"Screener complete! {len(result.picks)} picks ranked.")
+        except Exception as e:
+            err_type = type(e).__name__
+            err_msg = str(e) or repr(e)
+            st.error(f"Screener failed ({err_type}): {err_msg}")
+            with st.expander("Full error traceback"):
+                st.code(traceback.format_exc())
+            return
+
+    result = st.session_state.get("screener_result")
+    if result is None:
+        st.info(
+            "Enter a watchlist of tickers above and click **Run Screener** "
+            "to rank stocks by trading opportunity."
+        )
+        return
+
+    st.markdown("---")
+    render_screener_results(result)
+
+    st.markdown("---")
+    col_dl1, col_dl2 = st.columns(2)
+    exporter = ReportExporter()
+    with col_dl1:
+        screener_data = exporter.screener_to_dict(result)
+        st.download_button(
+            "Download JSON Report",
+            data=json.dumps(screener_data, indent=2, default=str),
+            file_name="screener_report.json",
+            mime="application/json",
+        )
+    with col_dl2:
+        screener_html = exporter._render_screener_html(exporter.screener_to_dict(result))
+        st.download_button(
+            "Download HTML Report",
+            data=screener_html,
+            file_name="screener_report.html",
+            mime="text/html",
+        )
 
 
 if __name__ == "__main__":

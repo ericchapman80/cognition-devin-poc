@@ -8,7 +8,10 @@ class TechnicalAnalyst(BaseAgent):
         "You are an expert technical analyst at a top trading firm. "
         "Analyze price charts, technical indicators (RSI, MACD, Bollinger Bands, Moving Averages), "
         "and trading patterns. Identify support/resistance levels, trend direction, and momentum. "
-        "Provide a clear signal: STRONG BUY, BUY, HOLD, SELL, or STRONG SELL with reasoning."
+        "You MUST respond with a JSON object in this exact format:\n"
+        '{"signal": "BUY|SELL|HOLD|STRONG BUY|STRONG SELL", '
+        '"confidence": 75, '
+        '"summary": "Your concise technical analysis."}'
     )
 
     def __init__(self, llm: LLMProvider):
@@ -60,7 +63,8 @@ class TechnicalAnalyst(BaseAgent):
                     parts.append(f"- {key}: {value}")
 
         parts.append(
-            "\nBased on these technical indicators, provide your assessment with a signal "
-            "(STRONG BUY / BUY / HOLD / SELL / STRONG SELL) and confidence level."
+            "\nBased on these technical indicators, respond with JSON: "
+            '{"signal": "STRONG BUY|BUY|HOLD|SELL|STRONG SELL", '
+            '"confidence": <0-100>, "summary": "<your analysis>"}'
         )
         return "\n".join(parts)

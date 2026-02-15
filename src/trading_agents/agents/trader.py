@@ -8,8 +8,11 @@ class TraderAgent(BaseAgent):
         "You are a senior trader at a top trading firm. You receive reports from analysts "
         "and researchers (both bull and bear cases). Your job is to synthesize all information "
         "and make a final trading decision. Consider risk/reward, timing, and position sizing. "
-        "Provide a clear decision: STRONG BUY, BUY, HOLD, SELL, or STRONG SELL. "
-        "Include suggested position size (% of portfolio) and time horizon."
+        "You MUST respond with a JSON object in this exact format:\n"
+        '{"signal": "BUY|SELL|HOLD|STRONG BUY|STRONG SELL", '
+        '"confidence": 75, '
+        '"summary": "Your decision rationale with key factors."}\n'
+        "Include suggested position size (% of portfolio) and time horizon in summary."
     )
 
     def __init__(self, llm: LLMProvider):
@@ -45,10 +48,9 @@ class TraderAgent(BaseAgent):
         risk_tolerance = context.get("risk_tolerance", "moderate")
         parts.append(f"\nRisk Tolerance: {risk_tolerance}")
         parts.append(
-            "\nBased on all the above, provide your trading decision:\n"
-            "1. Signal (STRONG BUY / BUY / HOLD / SELL / STRONG SELL)\n"
-            "2. Suggested position size (% of portfolio)\n"
-            "3. Time horizon (short/medium/long term)\n"
-            "4. Key reasoning (top 3 factors)"
+            "\nBased on all the above, respond with JSON: "
+            '{"signal": "STRONG BUY|BUY|HOLD|SELL|STRONG SELL", '
+            '"confidence": <0-100>, "summary": "<decision with position size, '
+            'time horizon, and top 3 factors>"}'
         )
         return "\n".join(parts)

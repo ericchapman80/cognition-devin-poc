@@ -9,6 +9,8 @@ from rich.table import Table
 
 from trading_agents.config import AppConfig
 from trading_agents.graph.trading_graph import TradingAgentsGraph
+from trading_agents.report import ReportExporter
+from trading_agents.screener import TradingScreener, parse_watchlist_input
 
 console = Console()
 
@@ -96,33 +98,95 @@ def print_decision(decision):
             Panel(decision.risk_assessment[:800], title="Risk Assessment", border_style="red")
         )
 
+    if decision.verification_summary:
+        console.print(
+            Panel(
+                decision.verification_summary[:800],
+                title="Verification",
+                border_style="blue",
+            )
+        )
+        if decision.verification_issues:
+            console.print("[bold blue]Issues found:[/bold blue]")
+            for issue in decision.verification_issues:
+                console.print(f"  [dim]- {issue}[/dim]")
+
+
+def print_screener_result(result):
+    if result.errors:
+        for err in result.errors:
+            console.print(f"[yellow]Warning: {err}[/yellow]")
+
+    if not result.picks:
+        console.print("[red]No picks available.[/red]")
+        return
+
+    table = Table(title="Screener Results - Top Picks")
+    table.add_column("#", style="bold")
+    table.add_column("Ticker", style="cyan bold")
+    table.add_column("Signal", style="white")
+    table.add_column("Confidence", style="white")
+    table.add_column("Rationale", style="dim")
+    table.add_column("Position %", style="white")
+    table.add_column("Horizon", style="white")
+    table.add_column("Key Risks", style="dim")
+
+    signal_colors = {
+        "strong_buy": "bold green",
+        "buy": "green",
+        "hold": "yellow",
+        "sell": "red",
+        "strong_sell": "bold red",
+    }
+
+    for pick in result.picks:
+        color = signal_colors.get(pick.signal, "white")
+        risks = ", ".join(pick.key_risks[:3]) if pick.key_risks else "N/A"
+        table.add_row(
+            str(pick.rank),
+            pick.ticker,
+            f"[{color}]{pick.signal.upper().replace('_', ' ')}[/{color}]",
+            f"{pick.confidence:.0f}%",
+            pick.rationale[:80] + ("..." if len(pick.rationale) > 80 else ""),
+            f"{pick.position_size_pct:.1f}%",
+            pick.time_horizon or "N/A",
+            risks,
+        )
+
+    console.print(table)
+
 
 @click.command()
 @click.option("--ticker", "-t", default=None, help="Stock ticker (e.g., AAPL)")
 @click.option("--date", "-d", default=None, help="Analysis date (YYYY-MM-DD)")
-@click.option("--provider", "-p", default="ollama", help="LLM provider (ollama/openai)")
-@click.option("--model", "-m", default="llama3", help="LLM model name")
+@click.option("--provider", "-p", default=None, help="LLM provider (ollama/lmstudio/openai)")
+@click.option("--model", "-m", default=None, help="LLM model name")
 @click.option(
     "--risk", "-r", default="moderate",
     help="Risk tolerance (conservative/moderate/aggressive)",
 )
-def main(ticker, date, provider, model, risk):
+@click.option(
+    "--screener", "-s", default=None,
+    help="Screener mode: comma-separated tickers (e.g., AAPL,MSFT,GOOGL)",
+)
+@click.option("--top-n", default=10, help="Number of top picks in screener mode")
+@click.option(
+    "--export", "-e", is_flag=True, default=False,
+    help="Export report (JSON + HTML) to reports/ directory",
+)
+def main(ticker, date, provider, model, risk, screener, top_n, export):
     print_banner()
 
-    if not ticker:
-        ticker = console.input("[cyan]Enter stock ticker:[/cyan] ").strip().upper()
-        if not ticker:
-            console.print("[red]No ticker provided. Exiting.[/red]")
-            sys.exit(1)
+    config = AppConfig.from_env()
+    if provider:
+        config.llm.provider = provider
+    if model:
+        config.llm.model = model
+    config.trading.risk_tolerance = risk
 
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
         console.print(f"[dim]Using current date: {date}[/dim]")
-
-    config = AppConfig.from_env()
-    config.llm.provider = provider
-    config.llm.model = model
-    config.trading.risk_tolerance = risk
 
     errors = config.validate()
     if errors:
@@ -130,8 +194,23 @@ def main(ticker, date, provider, model, risk):
             console.print(f"[red]Config error: {err}[/red]")
         sys.exit(1)
 
+    if screener:
+        _run_screener(config, screener, date, top_n, export)
+    else:
+        if not ticker:
+            ticker = console.input("[cyan]Enter stock ticker:[/cyan] ").strip().upper()
+            if not ticker:
+                console.print("[red]No ticker provided. Exiting.[/red]")
+                sys.exit(1)
+        _run_single_analysis(config, ticker, date, export)
+
+
+def _run_single_analysis(config, ticker, date, export):
     console.print(f"\n[bold]Analyzing {ticker}...[/bold]")
-    console.print(f"[dim]Provider: {provider} | Model: {model} | Risk: {risk}[/dim]\n")
+    console.print(
+        f"[dim]Provider: {config.llm.provider} | Model: {config.llm.model} "
+        f"| Risk: {config.trading.risk_tolerance}[/dim]\n"
+    )
 
     with Progress(
         SpinnerColumn(),
@@ -163,6 +242,61 @@ def main(ticker, date, provider, model, risk):
             sys.exit(1)
 
     print_decision(decision)
+
+    if export:
+        exporter = ReportExporter()
+        json_path = exporter.save_json(decision)
+        html_path = exporter.save_html(decision)
+        console.print("\n[green]Report exported:[/green]")
+        console.print(f"  JSON: {json_path}")
+        console.print(f"  HTML: {html_path}")
+
+
+def _run_screener(config, screener_input, date, top_n, export):
+    tickers = parse_watchlist_input(screener_input)
+    if not tickers:
+        console.print("[red]No valid tickers provided.[/red]")
+        sys.exit(1)
+
+    console.print(f"\n[bold]Running Screener on {len(tickers)} tickers...[/bold]")
+    console.print(f"[dim]Tickers: {', '.join(tickers)}[/dim]")
+    console.print(
+        f"[dim]Provider: {config.llm.provider} | Model: {config.llm.model} "
+        f"| Risk: {config.trading.risk_tolerance}[/dim]\n"
+    )
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Screening...", total=None)
+
+        def on_progress(msg):
+            try:
+                progress.update(task, description=msg)
+            except Exception:
+                pass
+
+        screener_obj = TradingScreener(config, on_progress=on_progress)
+
+        try:
+            result = screener_obj.screen(tickers, date, top_n)
+        except Exception as e:
+            console.print(f"\n[red]Error: {e}[/red]")
+            sys.exit(1)
+
+        progress.stop_task(task)
+
+    print_screener_result(result)
+
+    if export:
+        exporter = ReportExporter()
+        json_path = exporter.save_screener_json(result)
+        html_path = exporter.save_screener_html(result)
+        console.print("\n[green]Screener report exported:[/green]")
+        console.print(f"  JSON: {json_path}")
+        console.print(f"  HTML: {html_path}")
 
 
 if __name__ == "__main__":

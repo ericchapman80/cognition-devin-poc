@@ -90,6 +90,17 @@ class TestTradingAgentsGraph:
 
     @patch("trading_agents.graph.trading_graph.LLMProvider")
     @patch("trading_agents.graph.trading_graph.MarketDataProvider")
+    def test_emit_step_callback_failure_does_not_raise(
+        self, mock_data_cls, mock_llm_cls, mock_config
+    ):
+        def bad_callback(_step):
+            raise RuntimeError("boom")
+
+        graph = TradingAgentsGraph(mock_config, on_step=bad_callback)
+        graph._emit_step("Test Step", "completed", {"key": "val"})
+
+    @patch("trading_agents.graph.trading_graph.LLMProvider")
+    @patch("trading_agents.graph.trading_graph.MarketDataProvider")
     def test_node_fetch_data(self, mock_data_cls, mock_llm_cls, mock_config, mock_price_data):
         mock_data = MagicMock()
         mock_data.get_historical_data.return_value = mock_price_data

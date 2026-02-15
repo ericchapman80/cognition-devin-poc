@@ -14,6 +14,7 @@ from trading_agents.agents.risk_manager import RiskManager
 from trading_agents.agents.sentiment_analyst import SentimentAnalyst
 from trading_agents.agents.technical_analyst import TechnicalAnalyst
 from trading_agents.agents.trader import TraderAgent
+from trading_agents.agents.verifier import VerifierAgent
 from trading_agents.analysis.technical_indicators import TechnicalAnalyzer
 from trading_agents.config import AppConfig
 from trading_agents.data.market_data import MarketDataProvider
@@ -40,6 +41,8 @@ class TradingState(TypedDict, total=False):
     risk_assessment: str
     final_signal: str
     final_confidence: float
+    verification_summary: str
+    verification_issues: list
     risk_tolerance: str
     max_debate_rounds: int
     analysis_period_days: int
@@ -69,6 +72,8 @@ class TradingDecision:
     indicators: dict = field(default_factory=dict)
     signals: dict = field(default_factory=dict)
     price_data: Any = None
+    verification_summary: str = ""
+    verification_issues: list = field(default_factory=list)
 
 
 class TradingAgentsGraph:
@@ -87,6 +92,7 @@ class TradingAgentsGraph:
         self.bear_researcher = BearResearcher(self.llm)
         self.trader = TraderAgent(self.llm)
         self.risk_manager = RiskManager(self.llm)
+        self.verifier = VerifierAgent(self.llm)
 
         self.graph = self._build_graph()
 
@@ -101,6 +107,7 @@ class TradingAgentsGraph:
         builder.add_node("research_debate", self._node_research_debate)
         builder.add_node("trader_decision", self._node_trader_decision)
         builder.add_node("risk_review", self._node_risk_review)
+        builder.add_node("verification", self._node_verification)
 
         builder.set_entry_point("fetch_data")
 
@@ -116,13 +123,17 @@ class TradingAgentsGraph:
 
         builder.add_edge("research_debate", "trader_decision")
         builder.add_edge("trader_decision", "risk_review")
-        builder.add_edge("risk_review", END)
+        builder.add_edge("risk_review", "verification")
+        builder.add_edge("verification", END)
 
         return builder.compile()
 
     def _emit_step(self, name: str, status: str, data: dict | None = None, error: str = ""):
         step = StepResult(step_name=name, status=status, data=data or {}, error=error)
-        self.on_step(step)
+        try:
+            self.on_step(step)
+        except Exception:
+            pass
         return step
 
     def _node_fetch_data(self, state: TradingState) -> dict:
@@ -412,6 +423,45 @@ class TradingAgentsGraph:
                 "steps": [{"name": "Risk Review", "status": "error", "error": str(e)}],
             }
 
+    def _node_verification(self, state: TradingState) -> dict:
+        self._emit_step("Verification", "pending")
+        ticker = state["ticker"]
+        try:
+            result = self.verifier.verify(
+                ticker=ticker,
+                analyst_reports=state.get("analyst_reports", []),
+                trader_summary=state.get("trader_summary", ""),
+                risk_assessment=state.get("risk_assessment", ""),
+            )
+
+            issues = result.details.get("issues", [])
+            conf_adj = result.details.get("confidence_adjustment", 0)
+
+            final_confidence = state.get("final_confidence", 50.0)
+            if conf_adj:
+                final_confidence = max(10.0, final_confidence + float(conf_adj))
+
+            self._emit_step(
+                "Verification",
+                "completed",
+                {
+                    "verdict": result.signal,
+                    "issues_count": len(issues),
+                    "confidence_adjustment": conf_adj,
+                },
+            )
+            return {
+                "verification_summary": result.summary,
+                "verification_issues": issues,
+                "final_confidence": final_confidence,
+                "steps": [{"name": "Verification", "status": "completed"}],
+            }
+        except Exception as e:
+            self._emit_step("Verification", "error", error=str(e))
+            return {
+                "steps": [{"name": "Verification", "status": "error", "error": str(e)}],
+            }
+
     def propagate(self, ticker: str, date: str | None = None) -> TradingDecision:
         initial_state: TradingState = {
             "ticker": ticker,
@@ -446,5 +496,7 @@ class TradingAgentsGraph:
             indicators=final_state.get("indicators", {}),
             signals=final_state.get("signals", {}),
             price_data=final_state.get("price_data"),
+            verification_summary=final_state.get("verification_summary", ""),
+            verification_issues=final_state.get("verification_issues", []),
         )
         return decision

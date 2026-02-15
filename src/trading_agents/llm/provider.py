@@ -14,6 +14,8 @@ class LLMProvider:
             return self._call_ollama(prompt, system_prompt)
         elif self.config.provider == "openai":
             return self._call_openai(prompt, system_prompt)
+        elif self.config.provider == "lmstudio":
+            return self._call_lmstudio(prompt, system_prompt)
         raise ValueError(f"Unsupported LLM provider: {self.config.provider}")
 
     def _call_ollama(self, prompt: str, system_prompt: str) -> str:
@@ -36,6 +38,11 @@ class LLMProvider:
             )
         except requests.Timeout:
             raise TimeoutError("Ollama request timed out after 120 seconds")
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                f"Ollama returned HTTP error {getattr(e.response, 'status_code', '?')}: "
+                f"{getattr(e.response, 'text', str(e))}"
+            )
 
     def _call_openai(self, prompt: str, system_prompt: str) -> str:
         url = "https://api.openai.com/v1/chat/completions"
@@ -57,13 +64,55 @@ class LLMProvider:
         data = resp.json()
         return data["choices"][0]["message"]["content"]
 
+    def _call_lmstudio(self, prompt: str, system_prompt: str) -> str:
+        base_url = self.config.lmstudio_base_url.rstrip("/")
+        url = f"{base_url}/chat/completions"
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        payload = {
+            "model": self.config.model,
+            "messages": messages,
+            "temperature": self.config.temperature,
+        }
+        try:
+            resp = requests.post(url, json=payload, timeout=120)
+            resp.raise_for_status()
+            data = resp.json()
+            choices = data.get("choices")
+            if not choices or not isinstance(choices, list):
+                raise RuntimeError(f"Unexpected LM Studio response: {data}")
+            return choices[0]["message"]["content"]
+        except requests.ConnectionError:
+            raise ConnectionError(
+                f"Cannot connect to LM Studio at {base_url}. "
+                "Make sure LM Studio is running with a model loaded."
+            )
+        except requests.Timeout:
+            raise TimeoutError("LM Studio request timed out after 120 seconds")
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                f"LM Studio returned HTTP error {getattr(e.response, 'status_code', '?')}: "
+                f"{getattr(e.response, 'text', str(e))}"
+            )
+
     def is_available(self) -> bool:
         if self.config.provider == "ollama":
             try:
-                resp = requests.get(f"{self.config.ollama_base_url}/api/tags", timeout=5)
+                resp = requests.get(
+                    f"{self.config.ollama_base_url}/api/tags", timeout=5
+                )
                 return resp.status_code == 200
             except (requests.ConnectionError, requests.Timeout):
                 return False
         elif self.config.provider == "openai":
             return bool(self.config.openai_api_key)
+        elif self.config.provider == "lmstudio":
+            try:
+                base_url = self.config.lmstudio_base_url.rstrip("/")
+                resp = requests.get(f"{base_url}/models", timeout=5)
+                return resp.status_code == 200
+            except (requests.ConnectionError, requests.Timeout):
+                return False
         return False

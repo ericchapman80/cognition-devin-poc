@@ -12,6 +12,7 @@ class LLMConfig:
     provider: str = "ollama"
     model: str = "llama3"
     ollama_base_url: str = "http://localhost:11434"
+    lmstudio_base_url: str = "http://localhost:1234/v1"
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     google_api_key: str = ""
@@ -23,6 +24,7 @@ class LLMConfig:
             provider=os.getenv("LLM_PROVIDER", "ollama"),
             model=os.getenv("OLLAMA_MODEL", "llama3"),
             ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            lmstudio_base_url=os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"),
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
             google_api_key=os.getenv("GOOGLE_API_KEY", ""),
