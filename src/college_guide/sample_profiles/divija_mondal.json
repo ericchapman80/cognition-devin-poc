@@ -1,0 +1,90 @@
+{
+    "name": "Divija Mondal",
+    "current_grade": 10,
+    "graduation_year": 2028,
+    "school_name": "Adlai E. Stevenson High School",
+    "city": "Deerfield",
+    "state": "IL",
+    "visa_info": {
+        "parent_visa": "H-1B",
+        "student_visa": "H-4",
+        "country_of_birth": "India"
+    },
+    "intended_majors": ["Computer Science", "Data Science", "Software Engineering"],
+    "academic_record": {
+        "weighted_gpa": 4.32,
+        "unweighted_gpa": 3.96,
+        "courses": [
+            {
+                "name": "AP Computer Science A",
+                "grade": "A",
+                "course_type": "AP",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "AP Physics 1",
+                "grade": "A",
+                "course_type": "AP",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "AP Precalculus",
+                "grade": "A",
+                "course_type": "AP",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "AP Comparative Gov & Politics",
+                "grade": "A",
+                "course_type": "AP",
+                "subject_area": "Humanities"
+            },
+            {
+                "name": "Computer Programming 1",
+                "grade": "A",
+                "course_type": "Regular",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "Computer Programming 2",
+                "grade": "A",
+                "course_type": "Regular",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "Chemistry (Accelerated)",
+                "grade": "A",
+                "course_type": "Honors",
+                "subject_area": "STEM"
+            },
+            {
+                "name": "English (Accelerated)",
+                "grade": "A",
+                "course_type": "Honors",
+                "subject_area": "Humanities"
+            },
+            {
+                "name": "Spanish 3-4",
+                "grade": "A",
+                "course_type": "Regular",
+                "subject_area": "Humanities"
+            }
+        ],
+        "sat_score": null,
+        "act_score": null,
+        "sat_target": 1500,
+        "act_target": 34
+    },
+    "budget_per_year": null,
+    "preferences": {
+        "campus_environment": "traditional residential",
+        "region": "Midwest preferred",
+        "important_factors": [
+            "in-state tuition eligibility",
+            "STEM program strength",
+            "career placement",
+            "merit scholarship availability",
+            "BS/MS accelerated program"
+        ]
+    }
+}
