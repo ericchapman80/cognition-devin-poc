@@ -24,10 +24,24 @@ college-guide/
       report-compiler.agent.md         📝 Compiles all outputs into unified report
       report-reviewer.agent.md         🔍 Reviews report quality and completeness
       college-guide.agent.md           🎯 Orchestrator — chains all six automatically
+  profiles/                            📁 Student profile folders (input)
+    {Student-Name}/
+      profile.md                       📄 Structured student profile data
+      transcript.pdf                   📄 High school transcript (PDF)
+      test-scores.pdf                  📄 SAT/ACT/PSAT scores (PDF)
+      resume.pdf                       📄 Activities resume (PDF)
+      awards.pdf                       📄 Awards and certificates (PDF)
   output/                              📂 Generated reports saved here
   AGENTS.md                            📋 This file — conventions used by all agents
   README.md                            📖 Usage instructions
 ```
+
+## Input: Student Profiles
+- Place each student's data in `profiles/{Student-Name}/` (use hyphens, no spaces)
+- Each folder MUST have a `profile.md` with structured data (GPA, courses, visa status, intended major, etc.)
+- Drop supporting PDFs (transcript, test scores, resume, awards) into the same folder
+- The Profile Analyzer reads `profile.md` and all PDFs to build a complete picture
+- The more documents you provide, the more accurate the analysis will be
 
 ## Output Conventions
 - All generated reports are saved to the `output/` folder as markdown files
@@ -52,7 +66,8 @@ Every report must include:
 ## Commands
 | Task | Command |
 |------|---------|
-| Generate report | `@college-guide <student profile details>` |
+| Generate report from profile folder | `@college-guide Generate a report for the student in profiles/{Student-Name}/` |
+| Generate report (inline profile) | `@college-guide <student profile details>` |
 | Analyze profile only | `@profile-analyzer <student details>` |
 | Research colleges only | `@college-researcher <profile + analysis>` |
 | Financial analysis only | `@financial-analyst <profile + colleges>` |

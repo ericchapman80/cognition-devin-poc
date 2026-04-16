@@ -31,11 +31,36 @@ A multi-agent orchestration workflow for generating comprehensive college planni
 | **Report Compiler** | `report-compiler.agent.md` | Compiles all agent outputs into a single comprehensive markdown report |
 | **Report Reviewer** | `report-reviewer.agent.md` | Reviews report for completeness, accuracy, consistency; approves or requests revision |
 
+## Setting Up a Student Profile
+
+Before generating a report, add the student's data to the `profiles/` folder:
+
+1. Create a folder: `profiles/{FirstName-LastName}/` (use hyphens, no spaces)
+2. Copy the template from `profiles/Divija-Mondal/profile.md` and fill in the student's details
+3. Drop supporting documents into the same folder:
+   - `transcript.pdf` — High school transcript (official or unofficial)
+   - `test-scores.pdf` — SAT/ACT/PSAT score reports
+   - `resume.pdf` — Activities resume or brag sheet
+   - `awards.pdf` — Awards, honors, certificates
+   - Any other PDFs that help assess the student
+
+The agents will read `profile.md` and all PDFs in the folder to build a complete picture.
+
 ## How to Use
 
-### Option 1: Full Orchestrated Workflow (Recommended)
+### Option 1: Full Orchestrated Workflow from Profile Folder (Recommended)
 
-Invoke the orchestrator agent with a student profile:
+Invoke the orchestrator with a student's profile folder:
+
+```
+@college-guide Generate a complete college planning guide for the student in profiles/Divija-Mondal/
+```
+
+The orchestrator reads the student's `profile.md` and any PDFs, then chains all six agents in sequence to produce a reviewed final report saved to `output/Divija-Mondal-College-Guide.md`.
+
+### Option 2: Full Orchestrated Workflow with Inline Profile
+
+You can also pass the profile data directly:
 
 ```
 @college-guide Generate a complete college planning guide for the following student:
@@ -51,9 +76,7 @@ State: Illinois
 ...
 ```
 
-The orchestrator will automatically chain all six agents in sequence and produce a reviewed final report.
-
-### Option 2: Individual Agent Invocation
+### Option 3: Individual Agent Invocation
 
 You can invoke any agent directly for a specific task:
 
@@ -64,7 +87,7 @@ You can invoke any agent directly for a specific task:
 @career-pathway Plan career and immigration pathways for: ...
 ```
 
-### Option 3: Manual Chain
+### Option 4: Manual Chain
 
 Run agents manually in sequence, passing each output to the next:
 
@@ -88,7 +111,12 @@ college-guide/
 │       ├── career-pathway.agent.md       # Career & immigration pathways
 │       ├── report-compiler.agent.md      # Report compilation
 │       └── report-reviewer.agent.md      # Report review & approval
-├── output/                               # Generated reports
+├── profiles/                             # Student profile folders (input)
+│   ├── Divija-Mondal/                    # Sample student
+│   │   └── profile.md                    # Structured profile data
+│   │   └── transcript.pdf                # (add your PDFs here)
+│   └── README.md                         # How to add new students
+├── output/                               # Generated reports (e.g., Divija-Mondal-College-Guide.md)
 ├── AGENTS.md                             # Project conventions
 └── README.md                             # This file
 ```
@@ -114,6 +142,13 @@ This workflow is specialized for **H-4/immigrant STEM families** and covers:
 - BS vs BS/MS comparison for visa optimization
 - Grade-level appropriate action plans
 
+## Output
+
+The final reviewed report is saved to `output/{StudentName}-College-Guide.md`. For example:
+- `output/Divija-Mondal-College-Guide.md`
+
+The report contains 5 parts: Student Profile Analysis, College Recommendations, Financial Analysis, Career & Immigration Pathways, and Action Plan.
+
 ## Sample Student Profile
 
-A sample student profile (Divija Mondal) is embedded in the orchestrator agent. If no profile is provided, the orchestrator will use this sample to demonstrate the full workflow.
+A sample student profile (Divija Mondal) is included in `profiles/Divija-Mondal/profile.md`. The same profile is also embedded in the orchestrator agent as a fallback if no profile folder is specified.
