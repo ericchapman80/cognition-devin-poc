@@ -36,7 +36,7 @@ A multi-agent orchestration workflow for generating comprehensive college planni
 Before generating a report, add the student's data to the `profiles/` folder:
 
 1. Create a folder: `profiles/{FirstName-LastName}/` (use hyphens, no spaces)
-2. Copy the template from `profiles/Divija-Mondal/profile.md` and fill in the student's details
+2. Copy the template from `profiles/John-Doe/profile.md` and fill in the student's details
 3. Drop supporting documents into the same folder:
    - `transcript.pdf` — High school transcript (official or unofficial)
    - `test-scores.pdf` — SAT/ACT/PSAT score reports
@@ -53,10 +53,10 @@ The agents will read `profile.md` and all PDFs in the folder to build a complete
 Invoke the orchestrator with a student's profile folder:
 
 ```
-@college-guide Generate a complete college planning guide for the student in profiles/Divija-Mondal/
+@college-guide Generate a complete college planning guide for the student in profiles/John-Doe/
 ```
 
-The orchestrator reads the student's `profile.md` and any PDFs, then chains all six agents in sequence to produce a reviewed final report saved to `output/Divija-Mondal-College-Guide.md`.
+The orchestrator reads the student's `profile.md` and any PDFs, then chains all six agents in sequence to produce a reviewed final report saved to `output/John-Doe-College-Guide.md`.
 
 ### Option 2: Full Orchestrated Workflow with Inline Profile
 
@@ -65,9 +65,9 @@ You can also pass the profile data directly:
 ```
 @college-guide Generate a complete college planning guide for the following student:
 
-Student: Divija Mondal
+Student: John Doe
 Grade: 10 (Class of 2028)
-School: Neuqua Valley High School, Naperville, IL
+School: Springfield High School, Springfield, IL
 Parent Visa: H-1B | Student Visa: H-4
 Country of Birth: India
 GPA: 4.32 weighted / 3.95 unweighted
@@ -112,11 +112,11 @@ college-guide/
 │       ├── report-compiler.agent.md      # Report compilation
 │       └── report-reviewer.agent.md      # Report review & approval
 ├── profiles/                             # Student profile folders (input)
-│   ├── Divija-Mondal/                    # Sample student
+│   ├── John-Doe/                         # Sample student
 │   │   └── profile.md                    # Structured profile data
 │   │   └── transcript.pdf                # (add your PDFs here)
 │   └── README.md                         # How to add new students
-├── output/                               # Generated reports (e.g., Divija-Mondal-College-Guide.md)
+├── output/                               # Generated reports (e.g., John-Doe-College-Guide.md)
 ├── AGENTS.md                             # Project conventions
 └── README.md                             # This file
 ```
@@ -145,10 +145,10 @@ This workflow is specialized for **H-4/immigrant STEM families** and covers:
 ## Output
 
 The final reviewed report is saved to `output/{StudentName}-College-Guide.md`. For example:
-- `output/Divija-Mondal-College-Guide.md`
+- `output/John-Doe-College-Guide.md`
 
 The report contains 5 parts: Student Profile Analysis, College Recommendations, Financial Analysis, Career & Immigration Pathways, and Action Plan.
 
 ## Sample Student Profile
 
-A sample student profile (Divija Mondal) is included in `profiles/Divija-Mondal/profile.md`. The same profile is also embedded in the orchestrator agent as a fallback if no profile folder is specified.
+A sample student profile (John Doe) is included in `profiles/John-Doe/profile.md`. The same profile is also embedded in the orchestrator agent as a fallback if no profile folder is specified.

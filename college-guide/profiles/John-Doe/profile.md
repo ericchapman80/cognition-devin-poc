@@ -1,9 +1,9 @@
-# Student Profile: Divija Mondal
+# Student Profile: John Doe
 
 ## Personal Information
-- **Name:** Divija Mondal
+- **Name:** John Doe
 - **Grade:** 10 (Class of 2028)
-- **School:** Neuqua Valley High School, Naperville, IL
+- **School:** Springfield High School, Springfield, IL
 - **State:** Illinois
 - **Parent Visa:** H-1B
 - **Student Visa:** H-4

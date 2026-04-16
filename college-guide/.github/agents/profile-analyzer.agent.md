@@ -4,7 +4,7 @@ description: "Analyzes an H-4/immigrant STEM student's academic profile — GPA 
   course rigor, test scores, extracurriculars — and produces a competitiveness assessment
   with strengths, gaps, and recommended target school tiers. Use as the first step
   before college research."
-argument-hint: "Provide the student folder name (e.g., 'Divija-Mondal') or pass the full profile data. The agent will read profile.md and any PDFs from profiles/{Student-Name}/."
+argument-hint: "Provide the student folder name (e.g., 'John-Doe') or pass the full profile data. The agent will read profile.md and any PDFs from profiles/{Student-Name}/."
 tools: [read, search, web]
 ---
 

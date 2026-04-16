@@ -58,9 +58,9 @@ If no student folder is specified, check `profiles/` for available students and 
 Use this profile ONLY if no student profile folder exists in `profiles/`:
 
 ```
-Student: Divija Mondal
+Student: John Doe
 Grade: 10 (Class of 2028)
-School: Neuqua Valley High School, Naperville, IL
+School: Springfield High School, Springfield, IL
 Parent Visa: H-1B | Student Visa: H-4
 Country of Birth: India
 

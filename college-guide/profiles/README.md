@@ -21,7 +21,7 @@ profiles/
 ## How to Add a New Student
 
 1. Create a folder: `profiles/{FirstName-LastName}/` (use hyphens, no spaces)
-2. Copy the `profile.md` template from `profiles/Divija-Mondal/profile.md`
+2. Copy the `profile.md` template from `profiles/John-Doe/profile.md`
 3. Fill in all sections with the student's information
 4. Drop any supporting PDFs (transcript, test scores, resume, awards) into the same folder
 5. Run the orchestrator: `@college-guide Generate a report for the student in profiles/{FirstName-LastName}/`

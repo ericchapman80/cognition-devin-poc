@@ -9,7 +9,7 @@ The orchestrator (`college-guide`) chains all six agents automatically, with a r
 
 ## Domain Context
 - **Target audience:** H-1B/H-4 visa families planning undergraduate STEM education
-- **Student profile:** Divija Mondal — Grade 10, H-4 visa, 4.32 weighted GPA, AP STEM track, Illinois resident
+- **Sample student profile:** John Doe — Grade 10, H-4 visa, 4.32 weighted GPA, AP STEM track, Illinois resident (test data — replace with real student)
 - **Key concerns:** In-state tuition eligibility for H-4, merit scholarship availability, STEM career placement, H-1B sponsorship pipeline, immigration pathway planning
 
 ## Repository Structure
@@ -45,7 +45,7 @@ college-guide/
 
 ## Output Conventions
 - All generated reports are saved to the `output/` folder as markdown files
-- File naming: `{StudentName}-College-Guide.md` (e.g., `Divija-College-Guide.md`)
+- File naming: `{StudentName}-College-Guide.md` (e.g., `John-Doe-College-Guide.md`)
 - Reports must be comprehensive markdown with clear sections, tables, and actionable advice
 - Write like a **practical admissions + immigration strategist** speaking to a parent
 
