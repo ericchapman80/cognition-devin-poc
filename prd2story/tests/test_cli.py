@@ -35,7 +35,7 @@ class TestCLIInit:
             "--org", "TestOrg",
             "--non-interactive",
         ])
-        assert (tmp_path / "AGENTS.md").exists()
+        assert (tmp_path / ".prd2story" / "AGENTS.md").exists()
         assert (tmp_path / ".env.example").exists()
         assert (tmp_path / "prd" / "example-prd.md").exists()
 

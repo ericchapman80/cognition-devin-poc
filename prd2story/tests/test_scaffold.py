@@ -28,11 +28,11 @@ class TestScaffoldFiles:
 
     def test_creates_agents_md(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")
-        assert (tmp_path / "AGENTS.md").exists()
+        assert (tmp_path / ".prd2story" / "AGENTS.md").exists()
 
     def test_agents_md_has_org_name(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="Acme Corp")
-        content = (tmp_path / "AGENTS.md").read_text()
+        content = (tmp_path / ".prd2story" / "AGENTS.md").read_text()
         assert "Acme Corp" in content
         assert "{{ORG_NAME}}" not in content
 
@@ -175,7 +175,7 @@ class TestIdempotency:
     def test_scaffold_preserves_existing_files_without_force(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")
         # Modify AGENTS.md
-        agents_path = tmp_path / "AGENTS.md"
+        agents_path = tmp_path / ".prd2story" / "AGENTS.md"
         agents_path.write_text("custom content")
         # Re-scaffold without force
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")
@@ -183,7 +183,7 @@ class TestIdempotency:
 
     def test_scaffold_overwrites_with_force(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")
-        agents_path = tmp_path / "AGENTS.md"
+        agents_path = tmp_path / ".prd2story" / "AGENTS.md"
         agents_path.write_text("custom content")
         scaffold(tmp_path, integration="copilot", org_name="TestOrg", force=True)
         assert agents_path.read_text() != "custom content"

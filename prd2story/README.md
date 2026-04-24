@@ -41,9 +41,10 @@ your-project/
 │   ├── prd2story.story-generator.md
 │   ├── prd2story.story-reviewer.md
 │   └── prd2story.jira-creator.md
-├── AGENTS.md                      # Agent documentation
+├── .prd2story/
+│   ├── AGENTS.md                  # Agent documentation
+│   └── init-options.json          # Saved configuration
 ├── .env.example                   # Environment variables template
-└── .prd2story/init-options.json   # Saved configuration
 ```
 
 ## Supported AI Assistants

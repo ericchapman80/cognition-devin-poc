@@ -90,17 +90,18 @@ def scaffold(
                     dst.write_text(content, encoding="utf-8")
                     files_created.append(dest_rel)
 
-    # 3. Copy AGENTS.md
+    # 3. Copy AGENTS.md into .prd2story/ (avoid conflicting with repo's own AGENTS.md)
     if templates_dir:
         agents_src = templates_dir / "agents-md-template.md"
         if agents_src.exists():
-            agents_dst = target_dir / "AGENTS.md"
+            agents_dst = target_dir / ".prd2story" / "AGENTS.md"
+            agents_dst.parent.mkdir(parents=True, exist_ok=True)
             if not agents_dst.exists() or force:
                 content = agents_src.read_text(encoding="utf-8")
                 content = content.replace("{{ORG_NAME}}", org_name)
                 content = content.replace("{{JIRA_PROJECT}}", jira_project)
                 agents_dst.write_text(content, encoding="utf-8")
-                files_created.append("AGENTS.md")
+                files_created.append(".prd2story/AGENTS.md")
 
     # 4. Copy .env.example
     if templates_dir:

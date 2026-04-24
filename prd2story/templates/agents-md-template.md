@@ -45,7 +45,7 @@ your-project/
 │   ├── created-in-jira/           # Stories with JIRA keys
 │   ├── checklists/                # Per-story INVEST review checklists
 │   └── status/                    # Per-Epic progress tracker files
-├── AGENTS.md                      # This file
+├── .prd2story/AGENTS.md           # This file
 └── .env.example                   # Environment variables template
 ```
 
