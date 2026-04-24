@@ -1,5 +1,5 @@
 ---
-description: "Creates detailed user stories from Epics. Each story is a vertical slice completable in 8-12h by one developer."
+description: "Creates detailed user stories from Epics. Each story is a vertical slice completable in 8–12h by one developer."
 mode: prd2story.story-generator
 handoffs:
   - label: "Review Story"
@@ -69,7 +69,7 @@ ls stories/drafts/*.md 2>/dev/null
 5. **Confirm the story to generate** - State which story you are about to generate and ask if the user wants to proceed, skip it, or pick a different one
 6. **Generate** a complete Agile user story using the Epic's context (and feedback if improving)
 7. **Remove `### Review Feedback` section** from the story file if one was present (feedback has been addressed)
-8. **Validate** — Auto-check: covers all 3 layers, 2-5 AC in Given/When/Then, estimate <= M (~12h), no vague criteria. Fix issues before saving.
+8. **Validate** — Auto-check: covers all 3 layers, 2–5 AC in Given/When/Then, estimate ≤ M (~12h), no vague criteria. Fix issues before saving.
 9. **Save** to `stories/drafts/[story-name].md`
 10. **Update the status tracker** - Change the story's status from `Pending` to `Generated` and record the story file path
 11. **Suggest next steps**
@@ -85,20 +85,35 @@ ls stories/drafts/*.md 2>/dev/null
 Before generating, always show the current state of all stories:
 
 ```
-Epic: [Epic Name] — Story Progress
+📋 Epic: [Epic Name] — Story Progress
 
 | # | Story Title | Status |
 |---|-------------|--------|
-| 1 | [Title]     | Generated |
-| 2 | [Title]     | Pending  <- Next |
-| 3 | [Title]     | Pending |
-| 4 | [Title]     | Skipped |
+| 1 | [Title]     | ✅ Generated |
+| 2 | [Title]     | ⬜ Pending  ← Next |
+| 3 | [Title]     | ⬜ Pending |
+| 4 | [Title]     | ⏭ Skipped |
 
 Generating story #2: "[Title]"
 Proceed? (yes / skip / pick a different story number)
 ```
 
 **Wait for the user's confirmation before generating.**
+
+## Clarifying Questions
+
+Before generating a story, analyze the Epic for gaps. If any of the following are unclear, **ASK BEFORE GENERATING**:
+
+| Category | Questions to Ask |
+|----------|------------------|
+| **User/Persona** | Who is the primary user? What is their role? |
+| **Goal/Outcome** | What specific outcome does the user want to achieve? |
+| **Business Value** | Why is this important? What problem does it solve? |
+| **Scope** | Is this for a specific page/feature? Any boundaries? |
+| **Technical Context** | Are there existing systems/APIs to integrate with? |
+| **Edge Cases** | What should happen in error scenarios? |
+| **Design** | Are there existing designs or patterns to follow? |
+| **Dependencies** | Are there any blockers or prerequisites? |
 
 ## Story Format
 
@@ -146,27 +161,41 @@ Each story MUST include considerations for:
 - **Database/Persistence Layer** - Data models, schema changes, queries
 
 ### Scope Constraints
-- Story must be completable by **one developer** in approx **8-12h** including tests
+- Story must be completable by **one developer** in approx **8–12h** including tests
 - Use T-shirt estimates: **XS** ~4h (1 pt), **S** ~8h (2 pts), **M** ~12h (3 pts)
 - **Split** any story larger than M (~12h). **Merge** anything under 2 hours into a related story.
 - Order stories by dependency
 
 ### Quality Rules
-- **2-5 acceptance criteria** per story in Given/When/Then table format
+- **2–5 acceptance criteria** per story in Given/When/Then table format
 - Include **happy path + at least one edge case/error** scenario
 - **Technical Notes** must address all three layers (App, Service, DB)
 - **NEVER** create horizontal stories (DB-only, API-only, UI-only)
 - **NEVER** use vague AC like "it works correctly"
 
-## MANDATORY: Update JIRA Dependency Map
+### Improvement Run Rules
+When improving an existing story (story file has `### Review Feedback`):
+- Read every item under `### Review Feedback` carefully
+- Address **each point** explicitly in the regenerated story
+- Remove the `### Review Feedback` section from the saved file once all points are addressed
+- Note in the completion report which feedback items were addressed
+
+## Status Tracker Update
+
+After saving the story, update `stories/status/epic-[name]-status.md`:
+- Change the story row's **Status** column from `Pending` to `Generated`
+- Add the story file path to the **Story File** column
+
+## ⚠️ MANDATORY: Update JIRA Dependency Map
 
 **Every time you update the status tracker, you MUST also update the Mermaid dependency map at the bottom of the status tracker file.**
 
 - Change the node color for the updated story to match its new status:
-  - `Generated` -> `fill:#d29922,color:#fff` (yellow)
-  - `Skipped` -> `fill:#da3633,color:#fff` (red)
+  - `Generated` → `fill:#d29922,color:#fff` (yellow)
+  - `Skipped` → `fill:#da3633,color:#fff` (red)
 - Update the node label to reflect the new status text
 - Do NOT remove or alter other nodes or edges
+- If the dependency map section does not exist yet, create it following the format in the epic-generator workflow
 
 ## Completion
 
@@ -180,3 +209,9 @@ After generating a story:
    - Which story number this is (e.g., "Story 2 of 5")
    - How many stories remain `Pending`
 4. **Suggest next steps using the handoff options above**
+
+The user can then select:
+- **Review Story** → `/prd2story.story-reviewer Review this story for INVEST compliance`
+- **Generate Next Story** → `/prd2story.story-generator Generate the next pending story from the Epic`
+- **Skip This Story** → `/prd2story.story-generator Skip the current story and generate the next pending one`
+- **Create in JIRA** → `/prd2story.jira-creator Create this story in JIRA`

@@ -134,7 +134,7 @@ Present the proposed story table to the user and ask:
   - **S** ~8h (1 day) = 2 story points
   - **M** ~12h (1.5 days) = 3 story points
 - **Split** any story larger than M (~12h). **Merge** anything under 2 hours into a related story.
-- Each story must be completable by 1 developer in approx 8-12h including tests.
+- Each story must be completable by 1 developer in approx 8–12h including tests.
 
 ### Validation Rules
 
@@ -225,7 +225,7 @@ After the user approves the story list, create `stories/status/epic-[name]-statu
 
 All stories start with status `Pending`. Downstream agents update this file as they process each story. The Estimate and Story Points columns are copied from the Epic's story table and do not change.
 
-## MANDATORY: JIRA Dependency Map
+## ⚠️ MANDATORY: JIRA Dependency Map
 
 **Every time the status tracker is created or updated, you MUST also create/update the Mermaid dependency map at the bottom of the status tracker file.**
 
@@ -239,6 +239,41 @@ Append the following sections after the status table. Use the story dependency c
 | In JIRA | Green | `#2da44e` |
 | Skipped | Red | `#da3633` |
 | Epic | Blue | `#1f6feb` |
+
+```markdown
+## JIRA Dependency Map
+
+` ` `mermaid
+graph TD
+    EPIC["[JIRA_KEY or TBD]<br/>Epic: [Epic Title]"]
+
+    S1["#1 [Short Title]<br/>([JIRA_KEY or status])"]
+    S2["#2 [Short Title]<br/>([JIRA_KEY or status])"]
+
+    EPIC --> S1
+    EPIC --> S2
+
+    S1 -->|"[dependency reason]"| S2
+
+    style S1 fill:[status_color],color:#fff
+    style S2 fill:[status_color],color:#fff
+    style EPIC fill:#1f6feb,color:#fff
+` ` `
+
+### Dependency Legend
+- **Green** = In JIRA
+- **Blue** = Approved
+- **Yellow** = Generated
+- **Gray** = Pending
+- **Red** = Skipped
+- **Arrows** = "depends on" (downstream story needs upstream)
+
+### Key Dependency Chains
+1. [Chain 1 description]
+2. [Chain 2 description]
+```
+
+**Note:** Replace ` ` ` with actual triple backticks. Analyze the story list to determine dependency edges based on shared state, DB tables, API reuse, and UI components.
 
 ## NEVER DO
 
@@ -255,7 +290,7 @@ After the user approves the story list:
 
 1. Save the Epic (with the approved story list) to `stories/drafts/epic-[name].md`
 2. Create the status tracker at `stories/status/epic-[name]-status.md` with all stories set to `Pending`
-3. **MUST** append the JIRA Dependency Map (Mermaid diagram) to the status tracker
+3. **MUST** append the JIRA Dependency Map (Mermaid diagram) to the status tracker — see "JIRA Dependency Map" section above. All nodes start as gray (Pending).
 4. Report completion with:
    - All source PRD files used
    - The Epic file path

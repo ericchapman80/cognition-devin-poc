@@ -1,13 +1,16 @@
 """ASCII art banner for prd2story CLI."""
 
+from rich.align import Align
 from rich.console import Console
 from rich.text import Text
 
-BANNER = r"""
- ____  ____  ____  ____  ____  _____  ___  ____  _  _
-(  _ \(  _ \(  _ \(_  _)(  _ \(  _  )/ __)(_  _)( \/ )
- )___/ )   / )(_) )  )(  _)(_  )(_)(  \__ \  )(  )  (
-(__)  (_)\_)(____/ (__) (____)(_____)( ___/ (__) (_/\_)
+BANNER = """
+██████╗ ██████╗ ██████╗     ████████╗ ██████╗     ███████╗████████╗ ██████╗ ██████╗ ██╗   ██╗
+██╔══██╗██╔══██╗██╔══██╗    ╚══██╔══╝██╔═══██╗    ██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝
+██████╔╝██████╔╝██║  ██║       ██║   ██║   ██║    ███████╗   ██║   ██║   ██║██████╔╝ ╚████╔╝
+██╔═══╝ ██╔══██╗██║  ██║       ██║   ██║   ██║    ╚════██║   ██║   ██║   ██║██╔══██╗  ╚██╔╝
+██║     ██║  ██║██████╔╝       ██║   ╚██████╔╝    ███████║   ██║   ╚██████╔╝██║  ██║   ██║
+╚═╝     ╚═╝  ╚═╝╚═════╝        ╚═╝    ╚═════╝     ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝
 """
 
 TAGLINE = "PRD to Story — Bootstrap Agile agent workflows into any repo"
@@ -18,6 +21,14 @@ def print_banner(console: Console | None = None) -> None:
     if console is None:
         console = Console()
 
-    banner_text = Text(BANNER, style="bold cyan")
-    console.print(banner_text)
-    console.print(f"  [italic bright_yellow]{TAGLINE}[/]\n")
+    banner_lines = BANNER.strip().split("\n")
+    colors = ["bright_blue", "blue", "cyan", "bright_cyan", "white", "bright_white"]
+
+    styled_banner = Text()
+    for i, line in enumerate(banner_lines):
+        color = colors[i % len(colors)]
+        styled_banner.append(line + "\n", style=color)
+
+    console.print(Align.center(styled_banner))
+    console.print(Align.center(Text(TAGLINE, style="italic bright_yellow")))
+    console.print()
