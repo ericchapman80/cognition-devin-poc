@@ -1,0 +1,41 @@
+name: prd2story CI
+
+on:
+  push:
+    paths:
+      - 'prd2story/**'
+  pull_request:
+    paths:
+      - 'prd2story/**'
+
+defaults:
+  run:
+    working-directory: prd2story
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -e ".[test,dev]"
+
+      - name: Lint with ruff
+        run: ruff check src/ tests/
+
+      - name: Run tests
+        run: pytest --tb=short -v
+
+      - name: Run tests with coverage
+        if: matrix.python-version == '3.12'
+        run: pytest --cov=src --cov-report=term-missing
