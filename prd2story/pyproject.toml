@@ -1,0 +1,72 @@
+[project]
+name = "prd2story-cli"
+version = "1.0.0"
+description = "Bootstrap PRD-to-Story agent workflows into any repository. Scaffolds AI-powered agents for converting PRDs into Agile Epics and user stories."
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "readchar>=4.0.0",
+]
+
+[project.scripts]
+prd2story = "prd2story_cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prd2story_cli"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"templates/commands" = "prd2story_cli/core_pack/commands"
+"templates/agents-md-template.md" = "prd2story_cli/core_pack/templates/agents-md-template.md"
+"templates/env-example-template.md" = "prd2story_cli/core_pack/templates/env-example-template.md"
+"templates/example-prd.md" = "prd2story_cli/core_pack/templates/example-prd.md"
+"templates/story-review-checklist.md" = "prd2story_cli/core_pack/templates/story-review-checklist.md"
+"templates/status-readme.md" = "prd2story_cli/core_pack/templates/status-readme.md"
+"templates/copilot-instructions.md" = "prd2story_cli/core_pack/templates/copilot-instructions.md"
+"templates/windsurf-rules.md" = "prd2story_cli/core_pack/templates/windsurf-rules.md"
+"templates/cursor-rules.mdc" = "prd2story_cli/core_pack/templates/cursor-rules.mdc"
+"templates/claude-instructions.md" = "prd2story_cli/core_pack/templates/claude-instructions.md"
+"templates/gemini-instructions.md" = "prd2story_cli/core_pack/templates/gemini-instructions.md"
+"templates/opencode-instructions.md" = "prd2story_cli/core_pack/templates/opencode-instructions.md"
+"templates/generic-instructions.md" = "prd2story_cli/core_pack/templates/generic-instructions.md"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+dev = [
+    "ruff>=0.4.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
