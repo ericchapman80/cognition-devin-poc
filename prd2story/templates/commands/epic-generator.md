@@ -64,6 +64,47 @@ For diagrams and images (`.png`, `.jpg`, `.svg`, `.drawio`):
 - Ask the user to describe them if context is needed
 - **Include them in the Epic for downstream agents**
 
+### Step 4: Analyze the Repository Codebase
+
+**Scan the repo to extract technical insights that inform story creation.**
+
+This step is critical — it ensures Epics and stories are grounded in the actual codebase rather than generic assumptions.
+
+```bash
+# 1. Identify tech stack from project files
+ls package.json pyproject.toml Cargo.toml go.mod pom.xml build.gradle Gemfile composer.json 2>/dev/null
+
+# 2. Read dependency/config files for frameworks and libraries
+cat package.json 2>/dev/null | head -80
+cat pyproject.toml 2>/dev/null | head -80
+cat requirements.txt 2>/dev/null | head -50
+
+# 3. Map the project structure
+find . -type f -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' -o -name '*.py' -o -name '*.java' -o -name '*.go' -o -name '*.rs' 2>/dev/null | head -60
+
+# 4. Identify existing API routes / endpoints
+grep -r "@app\.route\|@router\|app\.get\|app\.post\|@GetMapping\|@PostMapping\|func.*http\.Handler" --include='*.py' --include='*.ts' --include='*.js' --include='*.java' --include='*.go' -l 2>/dev/null | head -20
+
+# 5. Identify data models / schemas
+grep -r "class.*Model\|class.*Schema\|interface.*Entity\|CREATE TABLE\|@Entity\|struct.*{" --include='*.py' --include='*.ts' --include='*.js' --include='*.java' --include='*.go' -l 2>/dev/null | head -20
+
+# 6. Check for existing tests structure
+find . -type d -name 'tests' -o -name 'test' -o -name '__tests__' -o -name 'spec' 2>/dev/null | head -10
+
+# 7. Check for database / ORM usage
+grep -r "prisma\|sequelize\|typeorm\|sqlalchemy\|django\.db\|mongoose\|knex\|drizzle" --include='*.py' --include='*.ts' --include='*.js' --include='*.json' -l 2>/dev/null | head -10
+```
+
+Incorporate these findings into the Epic's **Technical Context** section:
+- **Tech stack** — Languages, frameworks, package manager
+- **Project structure** — Key directories, module organization
+- **Existing APIs** — Routes and endpoints already implemented
+- **Data models** — Current database schemas and entities
+- **Testing setup** — Test framework, test directory structure
+- **Patterns** — Architecture patterns in use (MVC, hexagonal, etc.)
+
+This technical context flows into every downstream story so story-generator can write accurate Technical Notes.
+
 ## Workflow
 
 ### Phase 0: Onboarding (once per user)
@@ -185,6 +226,16 @@ After drafting stories, auto-review and flag:
 - Data models
 - Integration points
 - Constraints
+
+### Codebase Insights
+[Technical insights discovered from analyzing the repository code]
+- **Tech Stack:** [Languages, frameworks, package manager]
+- **Project Structure:** [Key directories and module organization]
+- **Existing APIs:** [Routes/endpoints already implemented that are relevant]
+- **Data Models:** [Current schemas/entities that stories will extend or modify]
+- **Testing Setup:** [Test framework, patterns, directory structure]
+- **Architecture Patterns:** [MVC, hexagonal, microservices, etc.]
+- **Relevant Existing Code:** [Files/modules that stories will need to modify or integrate with]
 
 ### Stories in this Epic
 | # | Story Title | Persona | Estimate | Story Points | Key Requirements |

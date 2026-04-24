@@ -114,11 +114,13 @@ When creating issues, use these Atlassian MCP tools:
 | Story Section | JIRA Field |
 |---------------|------------|
 | Title | Summary |
-| Summary + Background + Technical Notes | Description |
+| Summary + Background + Technical Notes (including codebase references) | Description |
 | Acceptance Criteria | Acceptance Criteria field or Description |
 | Story Points (XS=1, S=2, M=3) | Story Points |
 | Parent Epic | Epic Link |
 | — | Labels: `vertical-slice`, `story-slicer` |
+
+**Important:** When building the JIRA Description, include the **Technical Notes** section from the story which references specific files, modules, and patterns from the actual codebase. This gives developers immediate context about which code to modify.
 
 ## JIRA Preview Gate
 

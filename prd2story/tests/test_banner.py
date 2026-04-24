@@ -22,5 +22,4 @@ class TestBanner:
         assert len(result) > 0
 
     def test_banner_contains_prd2story(self):
-        # The block-character ASCII art contains box-drawing chars representing "PRD TO STORY"
-        assert "██" in BANNER or "PRD" in BANNER.upper() or "____" in BANNER
+        assert "prd" in BANNER.lower() or "____" in BANNER

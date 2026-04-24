@@ -56,6 +56,32 @@ cat stories/drafts/[story-name].md
 cat stories/drafts/epic-[name].md
 ```
 
+### Step 3: Cross-Reference Technical Notes Against the Codebase
+
+**Validate that the story's Technical Notes reference real code, not assumptions.**
+
+The story should contain a **Technical Notes** section with references to specific files, modules, and patterns. Verify these are accurate:
+
+```bash
+# 1. Verify files mentioned in Technical Notes actually exist
+ls [files referenced in Technical Notes] 2>/dev/null
+
+# 2. Check that referenced APIs/routes exist
+grep -r "[endpoint or function referenced in story]" --include='*.py' --include='*.ts' --include='*.js' --include='*.java' --include='*.go' -l 2>/dev/null | head -10
+
+# 3. Check that referenced data models/schemas exist
+grep -r "[model or schema referenced in story]" --include='*.py' --include='*.ts' --include='*.js' --include='*.java' -l 2>/dev/null | head -10
+
+# 4. Check that test patterns match what's described
+ls tests/ test/ __tests__/ spec/ 2>/dev/null
+```
+
+Flag in your review if:
+- Technical Notes reference files that don't exist
+- Described patterns don't match actual codebase conventions
+- Story proposes a new approach when existing patterns should be followed
+- Missing references to relevant existing code that should be modified
+
 ## Your Task
 
 1. **Read the story** - All context should already be in the story
@@ -86,6 +112,12 @@ cat stories/drafts/epic-[name].md
 - [ ] Specific, measurable goal
 - [ ] Business value articulated
 - [ ] Background provides sufficient context
+
+### Technical Accuracy (Codebase Cross-Reference)
+- [ ] Technical Notes reference specific, real files in the repo
+- [ ] Described patterns match actual codebase conventions
+- [ ] Existing code that should be modified/extended is identified
+- [ ] No assumptions that contradict the actual codebase
 
 ### Acceptance Criteria Quality
 - [ ] Uses Given-When-Then format

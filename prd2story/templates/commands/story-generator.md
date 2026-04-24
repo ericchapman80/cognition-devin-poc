@@ -59,6 +59,37 @@ cat stories/drafts/epic-[name].md
 ls stories/drafts/*.md 2>/dev/null
 ```
 
+### Step 4: Analyze Relevant Codebase Areas
+
+**Read the repo code to write accurate Technical Notes for the story.**
+
+The Epic's **Codebase Insights** section identifies the tech stack and key modules. Use it to drill into the specific files relevant to the story being generated.
+
+```bash
+# 1. If the Epic lists relevant files/modules, read them
+# (Replace paths with those from the Epic's Codebase Insights section)
+cat src/[relevant-module].ts 2>/dev/null | head -100
+
+# 2. Find existing components/functions related to this story's feature area
+grep -r "[keyword from story]" --include='*.ts' --include='*.py' --include='*.js' --include='*.java' --include='*.go' -l 2>/dev/null | head -15
+
+# 3. Check existing API routes this story may extend
+grep -r "@app\.route\|@router\|app\.get\|app\.post" --include='*.py' --include='*.ts' --include='*.js' -l 2>/dev/null | head -15
+
+# 4. Check existing data models this story may modify
+grep -r "class.*Model\|class.*Schema\|interface.*Entity\|CREATE TABLE" --include='*.py' --include='*.ts' --include='*.js' --include='*.java' -l 2>/dev/null | head -15
+
+# 5. Check test patterns to guide Testing/Validation section
+ls tests/ test/ __tests__/ spec/ 2>/dev/null
+find . -name '*test*' -o -name '*spec*' | head -10
+```
+
+Use these findings to enrich the story's **Technical Notes** section with:
+- Specific files/modules that need to be modified or extended
+- Existing patterns to follow (e.g., how existing endpoints are structured)
+- Database schema details from actual model files
+- Test patterns to follow from existing test files
+
 ## Workflow
 
 ### Normal Run (Generate Next Pending Story)
@@ -138,9 +169,11 @@ As a [persona], I want [goal], so that [benefit].
 | [Context] | [Action] | [Expected Result] |
 
 ### Technical Notes
-- **App/UI Layer:** [Frontend implementation details]
-- **Service/API Layer:** [Backend implementation details]
-- **Database Layer:** [Data persistence details]
+- **App/UI Layer:** [Frontend implementation details — reference specific existing components/pages]
+- **Service/API Layer:** [Backend implementation details — reference existing routes, services, patterns]
+- **Database Layer:** [Data persistence details — reference existing models/schemas]
+- **Relevant Existing Code:** [List specific files that will be modified or extended]
+- **Patterns to Follow:** [Reference existing code patterns the developer should match]
 
 ### Testing/Validation
 [Clear steps to validate the story]
