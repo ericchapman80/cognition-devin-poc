@@ -3,10 +3,12 @@
 Bootstrap PRD-to-Story agent workflows into any repository.
 
 ```
- ____  ____  ____  ____  ____  _____  ___  ____  _  _
-(  _ \(  _ \(  _ \(_  _)(  _ \(  _  )/ __)(_  _)( \/ )
- )___/ )   / )(_) )  )(  _)(_  )(_)(  \__ \  )(  )  (
-(__)  (_)\_)(____/ (__) (____)(_____)( ___/ (__) (_/\_)
+                    _____        __
+    ____  _________/ /__ \ _____/ /_____  _______  __
+   / __ \/ ___/ __  /__/ // ___/ __/ __ \/ ___/ / / /
+  / /_/ / /  / /_/ // __/(__  ) /_/ /_/ / /  / /_/ /
+ / .___/_/   \__,_//____/____/\__/\____/_/   \__, /
+/_/                                         /____/
 ```
 
 **prd2story** scaffolds AI-powered agents for converting Product Requirements Documents (PRDs) into Agile Epics and user stories — directly in your IDE.
