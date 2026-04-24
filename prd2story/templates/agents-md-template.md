@@ -29,23 +29,25 @@ Every agent pauses for explicit user input before taking irreversible actions. Y
 |-------|---------------------|-----------------|
 | **Epic: story list review** | "Here is the proposed story list. Type **approved** or reply with changes." | Reorder, rename, remove, or add stories before anything is saved |
 | **Story: generation confirm** | Shows progress table, asks "Proceed? (yes / skip / pick a number)" | Generate, skip, or jump to a specific story |
-| **Review: user approval** | "Do you approve this story? (yes / no + notes)" | Approve → moves to `stories/approved/`; No → adds feedback for revision |
+| **Review: user approval** | "Do you approve this story? (yes / no + notes)" | Approve → moves to `.prd2story/stories/approved/`; No → adds feedback for revision |
 | **JIRA: creation preview** | Shows preview table, asks "Type **confirm** to proceed or **cancel** to abort." | Review every issue before any API call is made |
 
 ## Folder Structure
 
 ```
 your-project/
-├── prd/                           # Product Requirements Documents
-│   ├── feature-name.md            # PRD files go here
-│   └── example-prd.md             # Example PRD template
-├── stories/
-│   ├── drafts/                    # Generated Epics and story drafts
-│   ├── approved/                  # User-approved stories
-│   ├── created-in-jira/           # Stories with JIRA keys
-│   ├── checklists/                # Per-story INVEST review checklists
-│   └── status/                    # Per-Epic progress tracker files
-├── .prd2story/AGENTS.md           # This file
+├── .prd2story/
+│   ├── AGENTS.md                  # This file
+│   ├── init-options.json          # Saved configuration
+│   ├── prd/                       # Product Requirements Documents
+│   │   ├── feature-name.md        # PRD files go here
+│   │   └── example-prd.md         # Example PRD template
+│   └── stories/
+│       ├── drafts/                # Generated Epics and story drafts
+│       ├── approved/              # User-approved stories
+│       ├── created-in-jira/       # Stories with JIRA keys
+│       ├── checklists/            # Per-story INVEST review checklists
+│       └── status/                # Per-Epic progress tracker files
 └── .env.example                   # Environment variables template
 ```
 

@@ -37,7 +37,7 @@ class TestCLIInit:
         ])
         assert (tmp_path / ".prd2story" / "AGENTS.md").exists()
         assert (tmp_path / ".env.example").exists()
-        assert (tmp_path / "prd" / "example-prd.md").exists()
+        assert (tmp_path / ".prd2story" / "prd" / "example-prd.md").exists()
 
     def test_init_with_windsurf(self, tmp_path):
         result = runner.invoke(app, [

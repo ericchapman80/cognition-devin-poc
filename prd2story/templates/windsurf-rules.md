@@ -32,18 +32,19 @@ Each agent pauses for explicit user input at key decisions:
 
 1. **Epic stage** — The agent presents the proposed story list and waits for you to approve, reorder, rename, or remove stories before saving anything.
 2. **Story generation** — Stories are generated one at a time. The agent shows a progress view and asks you to confirm, skip, or pick a specific story before generating.
-3. **Story review** — After the INVEST review, the agent asks *"Do you approve this story?"* and only moves it to `stories/approved/` on an explicit yes.
+3. **Story review** — After the INVEST review, the agent asks *"Do you approve this story?"* and only moves it to `.prd2story/stories/approved/` on an explicit yes.
 4. **JIRA creation** — Before calling any JIRA APIs, the agent shows a preview table of all issues to be created and waits for you to type **confirm**.
 
 ## File Organization
 
 | Folder | Contents |
 |--------|---------|
-| `stories/drafts/` | Epics and story drafts in progress |
-| `stories/approved/` | User-approved stories ready for JIRA |
-| `stories/created-in-jira/` | Stories with JIRA keys attached |
-| `stories/checklists/` | Per-story INVEST review checklists |
-| `stories/status/` | Per-Epic progress tracker files |
+| `.prd2story/prd/` | Product Requirements Documents |
+| `.prd2story/stories/drafts/` | Epics and story drafts in progress |
+| `.prd2story/stories/approved/` | User-approved stories ready for JIRA |
+| `.prd2story/stories/created-in-jira/` | Stories with JIRA keys attached |
+| `.prd2story/stories/checklists/` | Per-story INVEST review checklists |
+| `.prd2story/stories/status/` | Per-Epic progress tracker files |
 
 Use kebab-case for all filenames (e.g., `add-brand-filter-to-search.md`).
 

@@ -14,19 +14,19 @@ from .integrations.base import IntegrationBase
 
 # Directories that are always created
 SCAFFOLD_DIRS = [
-    "prd",
-    "stories/drafts",
-    "stories/approved",
-    "stories/created-in-jira",
-    "stories/checklists",
-    "stories/status",
+    ".prd2story/prd",
+    ".prd2story/stories/drafts",
+    ".prd2story/stories/approved",
+    ".prd2story/stories/created-in-jira",
+    ".prd2story/stories/checklists",
+    ".prd2story/stories/status",
 ]
 
 # Files to copy from shared templates (relative to templates dir)
 SCAFFOLD_FILES = {
-    "example-prd.md": "prd/example-prd.md",
-    "story-review-checklist.md": "stories/checklists/story-review-checklist.md",
-    "status-readme.md": "stories/status/README.md",
+    "example-prd.md": ".prd2story/prd/example-prd.md",
+    "story-review-checklist.md": ".prd2story/stories/checklists/story-review-checklist.md",
+    "status-readme.md": ".prd2story/stories/status/README.md",
 }
 
 GITIGNORE_ENTRIES = [

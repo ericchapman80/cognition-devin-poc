@@ -36,27 +36,27 @@ You are an expert Engineering Business Analyst focused on creating high-quality,
 
 **This agent reads the EPIC and STATUS TRACKER — PRD context is already summarized in the Epic.**
 
-The epic-generator has already read all PRD files and incorporated the context into the Epic. You do NOT need to re-read the `prd/` folder.
+The epic-generator has already read all PRD files and incorporated the context into the Epic. You do NOT need to re-read the `.prd2story/prd/` folder.
 
 ### Step 1: Read the Status Tracker
 ```bash
 # Find the status tracker for the relevant Epic
-ls stories/status/epic-*-status.md 2>/dev/null
+ls .prd2story/stories/status/epic-*-status.md 2>/dev/null
 
 # Read the status tracker to see which stories are Pending
-cat stories/status/epic-[name]-status.md
+cat .prd2story/stories/status/epic-[name]-status.md
 ```
 
 ### Step 2: Read the Epic
 ```bash
 # Read the Epic (contains all PRD context)
-cat stories/drafts/epic-[name].md
+cat .prd2story/stories/drafts/epic-[name].md
 ```
 
 ### Step 3: Check for Existing Stories
 ```bash
 # See what stories already exist to avoid duplicates
-ls stories/drafts/*.md 2>/dev/null
+ls .prd2story/stories/drafts/*.md 2>/dev/null
 ```
 
 ### Step 4: Analyze Relevant Codebase Areas
@@ -101,7 +101,7 @@ Use these findings to enrich the story's **Technical Notes** section with:
 6. **Generate** a complete Agile user story using the Epic's context (and feedback if improving)
 7. **Remove `### Review Feedback` section** from the story file if one was present (feedback has been addressed)
 8. **Validate** — Auto-check: covers all 3 layers, 2–5 AC in Given/When/Then, estimate ≤ M (~12h), no vague criteria. Fix issues before saving.
-9. **Save** to `stories/drafts/[story-name].md`
+9. **Save** to `.prd2story/stories/drafts/[story-name].md`
 10. **Update the status tracker** - Change the story's status from `Pending` to `Generated` and record the story file path
 11. **Suggest next steps**
 
@@ -151,7 +151,7 @@ Before generating a story, analyze the Epic for gaps. If any of the following ar
 ```markdown
 ## [Concise Title]
 
-**Source Epic:** `stories/drafts/epic-[name].md`
+**Source Epic:** `.prd2story/stories/drafts/epic-[name].md`
 **Story #:** [N] of [Total]
 **Estimate:** [XS ~4h / S ~8h / M ~12h]
 **Story Points:** [1/2/3]
@@ -215,7 +215,7 @@ When improving an existing story (story file has `### Review Feedback`):
 
 ## Status Tracker Update
 
-After saving the story, update `stories/status/epic-[name]-status.md`:
+After saving the story, update `.prd2story/stories/status/epic-[name]-status.md`:
 - Change the story row's **Status** column from `Pending` to `Generated`
 - Add the story file path to the **Story File** column
 
@@ -234,8 +234,8 @@ After saving the story, update `stories/status/epic-[name]-status.md`:
 
 After generating a story:
 
-1. Save the story to `stories/drafts/[story-name].md`
-2. Update `stories/status/epic-[name]-status.md`
+1. Save the story to `.prd2story/stories/drafts/[story-name].md`
+2. Update `.prd2story/stories/status/epic-[name]-status.md`
 3. Report completion with:
    - The source Epic file path
    - The story file path

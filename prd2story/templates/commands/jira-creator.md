@@ -32,18 +32,18 @@ You are a JIRA integration specialist responsible for creating well-formatted Ep
 
 **This agent reads the APPROVED STORY/EPIC and STATUS TRACKER — all context is already incorporated.**
 
-The story already contains all necessary context from the Epic and PRD. You do NOT need to re-read the Epic or `prd/` folder.
+The story already contains all necessary context from the Epic and PRD. You do NOT need to re-read the Epic or `.prd2story/prd/` folder.
 
 ### Read the Story/Epic to Create
 ```bash
 # For approved stories
-cat stories/approved/[story-name].md
+cat .prd2story/stories/approved/[story-name].md
 
 # For epics
-cat stories/drafts/epic-[name].md
+cat .prd2story/stories/drafts/epic-[name].md
 
 # Read the status tracker
-cat stories/status/epic-[name]-status.md
+cat .prd2story/stories/status/epic-[name]-status.md
 ```
 
 ## Prerequisites
@@ -93,7 +93,7 @@ When creating issues, use these Atlassian MCP tools:
 ## Your Task
 
 1. **Read the approved story/epic** and status tracker
-2. **Validate** the story/epic is ready for JIRA (in `stories/approved/` or user confirms)
+2. **Validate** the story/epic is ready for JIRA (in `.prd2story/stories/approved/` or user confirms)
 3. **Gather** JIRA project details if not provided
 4. **Build a JIRA Creation Preview** (see Preview Gate below)
 5. **Wait for user confirmation** before creating anything
@@ -164,17 +164,17 @@ If the user types **cancel**, stop and report that no issues were created.
 5. If any issue fails, pause and ask: "Story [N] failed: [error]. Continue with remaining stories? (yes/no)"
 6. After all issues are processed, show the final summary
 7. **⚠️ MANDATORY FILE OPERATIONS (steps 7–9) — You MUST complete ALL of these immediately after JIRA creation. Do NOT skip. Do NOT just report completion without actually performing the file operations.**
-8. **MUST** copy each successfully created story file to `stories/created-in-jira/[story-name].md` (add JIRA key at the top of the file content)
-9. **MUST** copy the Epic file to `stories/created-in-jira/epic-[name].md` with JIRA key added
-10. **MUST** update `stories/status/epic-[name]-status.md` — change status to `In JIRA`, update Story File path to `stories/created-in-jira/...`, and add the JIRA key
+8. **MUST** copy each successfully created story file to `.prd2story/stories/created-in-jira/[story-name].md` (add JIRA key at the top of the file content)
+9. **MUST** copy the Epic file to `.prd2story/stories/created-in-jira/epic-[name].md` with JIRA key added
+10. **MUST** update `.prd2story/stories/status/epic-[name]-status.md` — change status to `In JIRA`, update Story File path to `.prd2story/stories/created-in-jira/...`, and add the JIRA key
 11. **MUST** verify: confirm all file operations completed successfully before suggesting next steps
 
 ### Creating a Single Story (after confirm)
 1. Create the story in JIRA — record the returned JIRA key
 2. Report success or failure
 3. **⚠️ MANDATORY FILE OPERATIONS (steps 3–5) — Do NOT skip.**
-4. **MUST** copy the story file to `stories/created-in-jira/[story-name].md` (add JIRA key at the top)
-5. **MUST** update `stories/status/epic-[name]-status.md` — change status to `In JIRA`, update Story File path, and add the JIRA key
+4. **MUST** copy the story file to `.prd2story/stories/created-in-jira/[story-name].md` (add JIRA key at the top)
+5. **MUST** update `.prd2story/stories/status/epic-[name]-status.md` — change status to `In JIRA`, update Story File path, and add the JIRA key
 6. **MUST** verify all file operations completed before suggesting next steps
 
 ## Output Format
@@ -195,13 +195,13 @@ If the user types **cancel**, stop and report that no issues were created.
 | 3 | — | [Story 3] | ❌ Failed: [error message] |
 
 ### Files Updated
-- `stories/created-in-jira/epic-[name].md` - Added JIRA key
-- `stories/created-in-jira/story-1.md` - Added JIRA key
+- `.prd2story/stories/created-in-jira/epic-[name].md` - Added JIRA key
+- `.prd2story/stories/created-in-jira/story-1.md` - Added JIRA key
 ```
 
 ## Status Tracker Update
 
-After successful creation, update `stories/status/epic-[name]-status.md`:
+After successful creation, update `.prd2story/stories/status/epic-[name]-status.md`:
 - Change each created story's status to `In JIRA`
 - Add the JIRA issue key to the **JIRA Key** column
 
@@ -220,7 +220,7 @@ After successful creation, update `stories/status/epic-[name]-status.md`:
 
 After creating in JIRA:
 
-1. Move files to `stories/created-in-jira/`
+1. Move files to `.prd2story/stories/created-in-jira/`
 2. Update files with JIRA issue keys
 3. Update the status tracker
 4. **MUST** update the JIRA Dependency Map node colors and labels in the status tracker

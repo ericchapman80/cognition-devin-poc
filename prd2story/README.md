@@ -30,22 +30,22 @@ Running `prd2story init` scaffolds everything you need into your repo:
 
 ```
 your-project/
-├── prd/                           # Put your PRDs here
-│   └── example-prd.md
-├── stories/
-│   ├── drafts/                    # Generated Epics and story drafts
-│   ├── approved/                  # User-approved stories
-│   ├── created-in-jira/           # Stories with JIRA keys
-│   ├── checklists/                # INVEST review checklists
-│   └── status/                    # Per-Epic progress trackers
+├── .prd2story/
+│   ├── AGENTS.md                  # Agent documentation
+│   ├── init-options.json          # Saved configuration
+│   ├── prd/                       # Put your PRDs here
+│   │   └── example-prd.md
+│   └── stories/
+│       ├── drafts/                # Generated Epics and story drafts
+│       ├── approved/              # User-approved stories
+│       ├── created-in-jira/       # Stories with JIRA keys
+│       ├── checklists/            # INVEST review checklists
+│       └── status/                # Per-Epic progress trackers
 ├── .github/agents/                # (if Copilot selected)
 │   ├── prd2story.epic-generator.md
 │   ├── prd2story.story-generator.md
 │   ├── prd2story.story-reviewer.md
 │   └── prd2story.jira-creator.md
-├── .prd2story/
-│   ├── AGENTS.md                  # Agent documentation
-│   └── init-options.json          # Saved configuration
 ├── .env.example                   # Environment variables template
 ```
 
@@ -122,7 +122,7 @@ Each agent pauses at **user control points** — you always approve before anyth
 
 ## After Initialization
 
-1. Add your PRD to the `prd/` folder
+1. Add your PRD to the `.prd2story/prd/` folder
 2. Copy `.env.example` to `.env` and fill in your Atlassian credentials
 3. Open your IDE and type `/prd2story.epic-generator` to start
 

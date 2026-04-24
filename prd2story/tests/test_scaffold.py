@@ -48,7 +48,7 @@ class TestScaffoldFiles:
 
     def test_creates_example_prd(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")
-        assert (tmp_path / "prd" / "example-prd.md").exists()
+        assert (tmp_path / ".prd2story" / "prd" / "example-prd.md").exists()
 
     def test_creates_config(self, tmp_path):
         scaffold(tmp_path, integration="copilot", org_name="TestOrg")

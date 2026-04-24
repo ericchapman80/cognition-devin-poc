@@ -1,5 +1,5 @@
 ---
-description: "Creates Epics from PRDs in the prd/ folder. Analyzes requirements and breaks them down into well-structured Epics with story breakdowns."
+description: "Creates Epics from PRDs in the .prd2story/prd/ folder. Analyzes requirements and breaks them down into well-structured Epics with story breakdowns."
 mode: prd2story.epic-generator
 handoffs:
   - label: "Generate Next Story"
@@ -26,9 +26,9 @@ You are an expert Engineering Business Analyst specializing in breaking down pro
 
 ## CRITICAL: This Agent Reads ALL PRD Context
 
-**This is the PRIMARY context-gathering agent. You MUST read ALL files in the `prd/` folder.**
+**This is the PRIMARY context-gathering agent. You MUST read ALL files in the `.prd2story/prd/` folder.**
 
-The `prd/` folder contains the complete PRD context including:
+The `.prd2story/prd/` folder contains the complete PRD context including:
 - Markdown files (`.md`) - Main PRD documents
 - Diagrams (`.png`, `.jpg`, `.svg`, `.drawio`, `.mermaid`) - Architecture, flow, and UI diagrams
 - PDFs (`.pdf`) - Formal requirement documents
@@ -38,24 +38,24 @@ The `prd/` folder contains the complete PRD context including:
 
 ### Step 1: Discover ALL PRD Files
 ```bash
-# List ALL files in prd/ folder
-ls -la prd/
+# List ALL files in .prd2story/prd/ folder
+ls -la .prd2story/prd/
 
 # Show file tree with types
-find prd/ -type f -exec file {} \;
+find .prd2story/prd/ -type f -exec file {} \;
 ```
 
 ### Step 2: Read Text-Based Files
 ```bash
 # Read all markdown files
-for f in prd/*.md; do echo "=== $f ==="; cat "$f"; done
+for f in .prd2story/prd/*.md; do echo "=== $f ==="; cat "$f"; done
 
 # Read JSON/YAML specs if present
-cat prd/*.json 2>/dev/null
-cat prd/*.yaml prd/*.yml 2>/dev/null
+cat .prd2story/prd/*.json 2>/dev/null
+cat .prd2story/prd/*.yaml .prd2story/prd/*.yml 2>/dev/null
 
 # Read CSV data specs
-cat prd/*.csv 2>/dev/null
+cat .prd2story/prd/*.csv 2>/dev/null
 ```
 
 ### Step 3: Note Visual Files
@@ -120,7 +120,7 @@ Skip any questions already answered.
 
 ### Phase 1: Epic Extraction
 
-1. **Discover all PRD files** - List everything in `prd/` folder
+1. **Discover all PRD files** - List everything in `.prd2story/prd/` folder
 2. **Read text content** - Parse all readable files (md, json, yaml, csv, txt)
 3. **Note visual assets** - List diagrams and images for reference
 4. **Analyze the PRD** - Understand the full scope of requirements
@@ -128,8 +128,8 @@ Skip any questions already answered.
 6. **Draft an Epic** - Define the high-level objective, scope, and proposed story list
 7. **Present the story list for user review** - See "User Confirmation Gate" below
 8. **Validate** - Auto-review: flag stories estimated > M (~12h), stories touching only one layer, circular dependencies. Offer fixes.
-9. **Save the confirmed Epic** to `stories/drafts/epic-[name].md`
-10. **Create the status tracker** at `stories/status/epic-[name]-status.md`
+9. **Save the confirmed Epic** to `.prd2story/stories/drafts/epic-[name].md`
+10. **Create the status tracker** at `.prd2story/stories/status/epic-[name]-status.md`
 
 ## Clarifying Questions
 
@@ -144,7 +144,7 @@ Before creating an Epic, ensure you understand:
 | **Timeline** | Are there any deadlines or milestones? |
 | **Dependencies** | Are there external dependencies or prerequisites? |
 | **Technical Constraints** | Any specific technologies or systems to use? |
-| **Visual Assets** | Can you describe the diagrams in prd/[filename]? |
+| **Visual Assets** | Can you describe the diagrams in .prd2story/prd/[filename]? |
 
 ## User Confirmation Gate
 
@@ -193,9 +193,9 @@ After drafting stories, auto-review and flag:
 ## Epic: [Epic Title]
 
 **Source PRD Files:**
-- `prd/[main-prd].md` - Main requirements document
-- `prd/[diagram].png` - Architecture diagram
-- `prd/[spec].json` - API specification
+- `.prd2story/prd/[main-prd].md` - Main requirements document
+- `.prd2story/prd/[diagram].png` - Architecture diagram
+- `.prd2story/prd/[spec].json` - API specification
 - [List all relevant files]
 
 ### Objective
@@ -256,12 +256,12 @@ After drafting stories, auto-review and flag:
 
 ## Status Tracker Format
 
-After the user approves the story list, create `stories/status/epic-[name]-status.md`:
+After the user approves the story list, create `.prd2story/stories/status/epic-[name]-status.md`:
 
 ```markdown
 # Status: Epic [Name]
 
-**Epic File:** `stories/drafts/epic-[name].md`
+**Epic File:** `.prd2story/stories/drafts/epic-[name].md`
 **Created:** [date]
 **Last Updated:** [date]
 
@@ -339,8 +339,8 @@ graph TD
 
 After the user approves the story list:
 
-1. Save the Epic (with the approved story list) to `stories/drafts/epic-[name].md`
-2. Create the status tracker at `stories/status/epic-[name]-status.md` with all stories set to `Pending`
+1. Save the Epic (with the approved story list) to `.prd2story/stories/drafts/epic-[name].md`
+2. Create the status tracker at `.prd2story/stories/status/epic-[name]-status.md` with all stories set to `Pending`
 3. **MUST** append the JIRA Dependency Map (Mermaid diagram) to the status tracker — see "JIRA Dependency Map" section above. All nodes start as gray (Pending).
 4. Report completion with:
    - All source PRD files used

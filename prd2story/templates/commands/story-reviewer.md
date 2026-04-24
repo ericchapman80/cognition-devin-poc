@@ -32,28 +32,28 @@ You are a senior Engineering Business Analyst specializing in story quality assu
 
 **This agent reads the STORY and STATUS TRACKER — all story context is already incorporated in the story.**
 
-The story-generator has already incorporated Epic and PRD context into the story. You do NOT need to re-read the Epic or `prd/` folder.
+The story-generator has already incorporated Epic and PRD context into the story. You do NOT need to re-read the Epic or `.prd2story/prd/` folder.
 
 ### Step 1: Read the Status Tracker
 ```bash
 # Find the status tracker
-ls stories/status/epic-*-status.md 2>/dev/null
-cat stories/status/epic-[name]-status.md
+ls .prd2story/stories/status/epic-*-status.md 2>/dev/null
+cat .prd2story/stories/status/epic-[name]-status.md
 ```
 
 ### Step 2: Read the Story to Review
 ```bash
 # List available stories
-ls stories/drafts/*.md 2>/dev/null
+ls .prd2story/stories/drafts/*.md 2>/dev/null
 
 # Read the specific story
-cat stories/drafts/[story-name].md
+cat .prd2story/stories/drafts/[story-name].md
 ```
 
 **Only read the Epic if the story seems incomplete or missing context:**
 ```bash
 # Optional: Read Epic if story lacks context
-cat stories/drafts/epic-[name].md
+cat .prd2story/stories/drafts/epic-[name].md
 ```
 
 ### Step 3: Cross-Reference Technical Notes Against the Codebase
@@ -140,7 +140,7 @@ The following are automatic failures. Flag them immediately:
 ```markdown
 ## Story Review: [Story Title]
 
-**Story File:** `stories/drafts/[story-name].md`
+**Story File:** `.prd2story/stories/drafts/[story-name].md`
 
 ### Overall Assessment
 [READY FOR DEVELOPMENT / NEEDS REVISION]
@@ -170,7 +170,7 @@ The following are automatic failures. Flag them immediately:
 After presenting the review, ask:
 
 > "Do you approve this story for development?
-> - Type **yes** to approve and move it to `stories/approved/`
+> - Type **yes** to approve and move it to `.prd2story/stories/approved/`
 > - Type **no** followed by any additional notes to send it back for revision"
 
 **Wait for the user's explicit reply before continuing.**
@@ -179,20 +179,20 @@ After presenting the review, ask:
 
 **⚠️ MANDATORY FILE OPERATIONS — You MUST complete ALL of the following steps immediately after the user approves. Do NOT skip any step. Do NOT just report completion without actually performing the file operations. Failure to complete these steps is a workflow violation.**
 
-1. **MUST** copy the story file to `stories/approved/[story-name].md` (copy the full content)
-2. **MUST** save the review checklist to `stories/checklists/review-[story-name].md`
-3. **MUST** update `stories/status/epic-[name]-status.md` — change status to `Approved` and update Story File path to `stories/approved/...`
+1. **MUST** copy the story file to `.prd2story/stories/approved/[story-name].md` (copy the full content)
+2. **MUST** save the review checklist to `.prd2story/stories/checklists/review-[story-name].md`
+3. **MUST** update `.prd2story/stories/status/epic-[name]-status.md` — change status to `Approved` and update Story File path to `.prd2story/stories/approved/...`
 4. **MUST** verify: confirm all 3 file operations above completed successfully before suggesting next steps
 5. Suggest the **Create in JIRA** handoff
 
 **When reviewing multiple stories in batch:** After ALL reviews are presented and the user approves, you MUST perform steps 1–4 for EVERY approved story before suggesting next steps. Do not wait for a separate prompt.
 
 ### If the user rejects (no + notes)
-1. Append a `### Review Feedback` section to the story file in `stories/drafts/` with:
+1. Append a `### Review Feedback` section to the story file in `.prd2story/stories/drafts/` with:
    - The specific recommendations from the review
    - Any additional notes the user provided
-2. Save the review checklist to `stories/checklists/review-[story-name].md`
-3. Update `stories/status/epic-[name]-status.md` — keep status as `Generated`
+2. Save the review checklist to `.prd2story/stories/checklists/review-[story-name].md`
+3. Update `.prd2story/stories/status/epic-[name]-status.md` — keep status as `Generated`
 4. Suggest the **Improve Story** handoff
 
 The `### Review Feedback` section format:
